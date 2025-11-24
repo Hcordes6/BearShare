@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation, action } from "./_generated/server";
 import { api } from "./_generated/api";
+import { Id } from "./_generated/dataModel";
 
 export const createTextPost = mutation({
     args: {
@@ -13,6 +14,22 @@ export const createTextPost = mutation({
             content: args.content,
         });
         return post;
+    },
+});
+
+export const generateUploadUrl = mutation({
+    handler: async (ctx) => {
+        return await ctx.storage.generateUploadUrl();
+    },
+});
+
+export const createFilePost = mutation({
+    args: { storageId: v.id("_storage"), title: v.string() },
+    handler: async (ctx, args) => {
+        await ctx.db.insert("posts", {
+            file: args.storageId,
+            title: args.title,
+        });
     },
 });
 

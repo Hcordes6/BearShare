@@ -2,15 +2,21 @@
 
 import { api } from "@/convex/_generated/api";
 import { useMutation } from "convex/react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, FormEvent } from "react";
 
 export default function AddPost() {
     const createTextPost = useMutation(api.posts.createTextPost);
+    {/* This is necessary for temporary url for file upload */}
+    const generateUploadUrl = useMutation(api.posts.generateUploadUrl);
+    const createFilePost = useMutation(api.posts.createFilePost);
+
+
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [postType, setPostType] = useState<"file" | "text" | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     // Close menu when clicking outside
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -35,6 +41,44 @@ export default function AddPost() {
 
     const handleCancel = () => {
         setPostType(null);
+    };
+
+    const handleFileUpload = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (!selectedFile || !title.trim()) {
+            return;
+        }
+        try {
+            const url = await generateUploadUrl();
+            const result = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": selectedFile.type },
+                body: selectedFile,
+            });
+            const { storageId } = await result.json();
+
+            await createFilePost({ title: title.trim(), storageId });
+            setSelectedFile(null);
+            setTitle("");
+            setPostType(null);
+            setIsMenuOpen(false);
+        } catch (error) {
+            console.error("Error uploading file:", error);
+        }
+    };
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            // Validate file type
+            const validTypes = ["image/png", "image/jpeg", "application/pdf"];
+            if (validTypes.includes(file.type)) {
+                setSelectedFile(file);
+            } else {
+                alert("Please select a PNG, JPG, or PDF file.");
+                event.target.value = "";
+            }
+        }
     };
 
     return (
@@ -160,7 +204,7 @@ export default function AddPost() {
                         </div>
                     ) : (
                         /* This is the file post form */
-                        <div className="flex flex-col gap-4">
+                        <form className="flex flex-col gap-4" onSubmit={handleFileUpload}>
                             <div className="flex items-center justify-between">
                                 <h2 className="text-xl font-semibold text-gray-800">Post File</h2>
                                 {/* This is the button to cancel the file post */}
@@ -189,7 +233,10 @@ export default function AddPost() {
                                 <input
                                     type="text"
                                     placeholder="Enter post title..."
-                                    className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="px-4 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    required
                                 />
                             </div>
                             {/* This is the file input */}
@@ -200,6 +247,8 @@ export default function AddPost() {
                                         type="file"
                                         id="file-upload"
                                         className="hidden"
+                                        accept="image/png,image/jpeg,application/pdf,.png,.jpg,.jpeg,.pdf"
+                                        onChange={handleFileChange}
                                     />
                                     <label
                                         htmlFor="file-upload"
@@ -222,10 +271,35 @@ export default function AddPost() {
                                             Click to upload or drag and drop
                                         </span>
                                         <span className="text-sm text-gray-500">
-                                            PNG, JPG, PDF, or any file type
+                                            PNG, JPG, or PDF files only
                                         </span>
                                     </label>
                                 </div>
+                                {selectedFile && (
+                                    <div className="mt-2 p-3 bg-gray-50 rounded-md border border-gray-200">
+                                        <div className="flex items-center gap-2">
+                                            <svg
+                                                className="w-5 h-5 text-gray-600"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                />
+                                            </svg>
+                                            <span className="text-sm text-gray-700 font-medium">
+                                                {selectedFile.name}
+                                            </span>
+                                            <span className="text-xs text-gray-500">
+                                                ({(selectedFile.size / 1024).toFixed(2)} KB)
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                             {/* This is the description textarea */}
                             <div className="flex flex-col gap-2">
@@ -237,12 +311,23 @@ export default function AddPost() {
                                 />
                             </div>
                             {/* This is the button to post the file post */}
-                            <div className="flex justify-end">
-                                <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-150 cursor-pointer">
+                            <div className="flex gap-2 justify-end">
+                                <button
+                                    onClick={handleCancel}
+                                    type="button"
+                                    className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-150 cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-150 cursor-pointer disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                    type="submit"
+                                    disabled={!selectedFile || !title.trim()}
+                                >
                                     Post
                                 </button>
                             </div>
-                        </div>
+                        </form>
                     )}
                 </div>
             )}
