@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { query, mutation, action } from "./_generated/server";
 import { api } from "./_generated/api";
 
-export const createPost = mutation({
+export const createTextPost = mutation({
     args: {
         title: v.string(),
         content: v.string(),

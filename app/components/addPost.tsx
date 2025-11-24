@@ -1,12 +1,16 @@
 "use client";
 
+import { api } from "@/convex/_generated/api";
+import { useMutation } from "convex/react";
 import { useState, useRef, useEffect } from "react";
 
 export default function AddPost() {
+    const createTextPost = useMutation(api.posts.createTextPost);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [postType, setPostType] = useState<"file" | "text" | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
-
+    const [title, setTitle] = useState("");
+    const [content, setContent] = useState("");
     // Close menu when clicking outside
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -125,6 +129,8 @@ export default function AddPost() {
                                     type="text"
                                     placeholder="Enter post title..."
                                     className="px-4 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
                                 />
                             </div>
                             {/* This is the content textarea */}
@@ -134,11 +140,20 @@ export default function AddPost() {
                                     placeholder="Write your post content..."
                                     rows={6}
                                     className="px-4 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                    value={content}
+                                    onChange={(e) => setContent(e.target.value)}
                                 />
                             </div>
                             {/* This is the button to post the text post */}
                             <div className="flex justify-end">
-                                <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-150 cursor-pointer">
+                                <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-150 cursor-pointer"
+                                onClick={() => createTextPost({ title: title, content: content }).then(() => {
+                                    setTitle("");
+                                    setContent("");
+                                    setPostType(null);
+                                    setIsMenuOpen(false);
+                                })}
+                                >
                                     Post
                                 </button>
                             </div>

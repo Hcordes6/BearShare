@@ -9,8 +9,9 @@ import Header from "./components/header";
 import AddPost from "./components/addPost";
 
 export default function Home() {
-  const createPost = useMutation(api.posts.createPost);
+  
   const posts = useQuery(api.posts.getPosts);
+
   return (
     <div className="flex flex-col p-4 h-screen">
       <Header />
