@@ -34,7 +34,23 @@ export const createFilePost = mutation({
 });
 
 export const getPosts = query({
+    returns: v.array(
+        v.object({
+            _id: v.id("posts"),
+            _creationTime: v.number(),
+            title: v.string(),
+            content: v.optional(v.string()),
+            file: v.optional(v.id("_storage")),
+            fileUrl: v.union(v.string(), v.null()),
+        })
+    ),
     handler: async (ctx) => {
-        return await ctx.db.query("posts").collect();
+        const posts = await ctx.db.query("posts").collect();
+        return await Promise.all(
+            posts.map(async (post) => ({
+                ...post,
+                fileUrl: post.file ? await ctx.storage.getUrl(post.file) : null,
+            }))
+        );
     },
 });
