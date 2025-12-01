@@ -1,6 +1,8 @@
 "use client";
 
+import AddPost from "../components/addPost";
 import Header from "../components/header";
+import PostCard from "../components/postCard";
 
 export default function MyClasses() {
   return (
@@ -12,7 +14,10 @@ export default function MyClasses() {
           <p className="text-gray-600 dark:text-gray-400 mb-8">
             Manage and view all your enrolled classes
           </p>
-          
+          <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <AddPost />
+            <PostCard />
+          </main>
         </div>
       </main>
     </div>
