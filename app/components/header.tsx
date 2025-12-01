@@ -10,31 +10,32 @@ export default function Header() {
     // Header Menu Content -- Change for classes?
     const items = [
         {
-          label: "About",
+          label: "Find a Class",
           bgColor: "#0D0716",
           textColor: "#fff",
           links: [
-            { label: "Company", href: "/about/company", ariaLabel: "About Company" },
-            { label: "Careers", href: "/about/careers", ariaLabel: "About Careers" }
+            { label: "All Classes", href: "/all-classes", ariaLabel: "All Classes" },
+            { label: "Request a Class", href: "/", ariaLabel: "Request a Class" },
           ]
         },
         {
-          label: "Projects", 
+          label: "My Classes", 
           bgColor: "#170D27",
           textColor: "#fff",
           links: [
-            { label: "Featured", href: "/projects/featured", ariaLabel: "Featured Projects" },
-            { label: "Case Studies", href: "/projects/case-studies", ariaLabel: "Project Case Studies" }
+            { label: "Class 1", href: "/my-classes", ariaLabel: "My Classes" },
+            { label: "Class 2", href: "/my-classes", ariaLabel: "My Classes" },
+            { label: "Class 3", href: "/my-classes", ariaLabel: "My Classes" },
+            { label: "Manage Classes", href: "/my-classes", ariaLabel: "My Classes" },
           ]
         },
         {
-          label: "Contact",
+          label: "Settings",
           bgColor: "#271E37", 
           textColor: "#fff",
           links: [
-            { label: "Email", href: "mailto:contact@bearshare.com", ariaLabel: "Email us" },
-            { label: "Twitter", href: "https://twitter.com/bearshare", ariaLabel: "Twitter" },
-            { label: "LinkedIn", href: "https://linkedin.com/company/bearshare", ariaLabel: "LinkedIn" }
+            { label: "Account", href: "/settings/account", ariaLabel: "Account" },
+            { label: "Notifications", href: "/settings/notifications", ariaLabel: "Notifications" },
           ]
         }
     ];

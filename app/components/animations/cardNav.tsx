@@ -1,6 +1,8 @@
 // Used From https://reactbits.dev/components/card-nav
+"use client";
 
 import React, { useLayoutEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { gsap } from 'gsap';
 // use your own icon import if react-icons is not available
 import { GoArrowUpRight } from 'react-icons/go';
@@ -41,6 +43,7 @@ const CardNav: React.FC<CardNavProps> = ({
   buttonBgColor,
   buttonTextColor
 }) => {
+  const router = useRouter();
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const navRef = useRef<HTMLDivElement | null>(null);
@@ -187,7 +190,12 @@ const CardNav: React.FC<CardNavProps> = ({
             />
           </div>
 
-          <div className="logo-container flex items-center md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 order-1 md:order-none">
+          <div className="logo-container flex items-center md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 order-1 md:order-none cursor-pointer" 
+            onClick={() => router.push('/')}
+            role="button"
+            aria-label="All Classes"
+            tabIndex={0}
+          >
             <img src={logo} alt={logoAlt} className="logo h-[28px]" />
           </div>
 
