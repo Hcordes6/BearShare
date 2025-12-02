@@ -40,7 +40,7 @@ export default function Header() {
         }
     ];
     return (
-        <CardNav logo="/assets/placeholderLogo.png"
+        <CardNav logo="/assets/bearShareLogo.png"
         items={items}
         baseColor="#fff"
         menuColor="#000"

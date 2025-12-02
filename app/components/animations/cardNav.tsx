@@ -196,7 +196,7 @@ const CardNav: React.FC<CardNavProps> = ({
             aria-label="All Classes"
             tabIndex={0}
           >
-            <img src={logo} alt={logoAlt} className="logo h-[28px]" />
+            <img src={logo} alt={logoAlt} className="logo h-[50px]" />
           </div>
 
           <button
