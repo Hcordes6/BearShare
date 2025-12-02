@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import Header from "../components/header";
 
 interface ClassCard {
-  id: string;
+  id: Id<"courses">;
   name: string;
   description: string;
   memberCount: number;
@@ -13,62 +16,46 @@ interface ClassCard {
   color: string;
 }
 
+// Helper function to determine category and color based on course tag/name
+const getCategoryAndColor = (tag: string, name: string): { category: string; color: string } => {
+  const tagUpper = tag.toUpperCase();
+  const nameLower = name.toLowerCase();
+  
+  if (tagUpper.includes("CSE") || tagUpper.includes("CS") || nameLower.includes("computer science") || nameLower.includes("programming") || nameLower.includes("data structures")) {
+    return { category: "Computer Science", color: "blue" };
+  } else if (tagUpper.includes("MATH") || nameLower.includes("calculus") || nameLower.includes("algebra") || nameLower.includes("statistics")) {
+    return { category: "Mathematics", color: "purple" };
+  } else if (tagUpper.includes("CHEM") || nameLower.includes("chemistry")) {
+    return { category: "Chemistry", color: "green" };
+  } else if (tagUpper.includes("PSYCH") || nameLower.includes("psychology")) {
+    return { category: "Psychology", color: "pink" };
+  } else if (tagUpper.includes("HIST") || nameLower.includes("history")) {
+    return { category: "History", color: "orange" };
+  } else {
+    return { category: "General", color: "blue" };
+  }
+};
+
 export default function AllClasses() {
-  const [joinedClasses, setJoinedClasses] = useState<Set<string>>(new Set());
+  const [joinedClasses, setJoinedClasses] = useState<Set<Id<"courses">>>(new Set());
+  const courses = useQuery(api.courses.getAllCourses);
 
-  // Prototype class data
-  const classes: ClassCard[] = [
-    {
-      id: "1",
-      name: "Introduction to Computer Science",
-      description: "CSE 1301",
-      memberCount: 247,
-      category: "Computer Science",
-      color: "blue"
-    },
-    {
-      id: "js7b2yn94ag509hwckwb9164hs7wgaa4",
-      name: "Calculus 1",
-      description: "MATH 1301",
-      memberCount: 189,
-      category: "Mathematics",
-      color: "purple"
-    },
-    {
-      id: "3",
-      name: "Organic Chemistry",
-      description: "CHEM 2561",
-      memberCount: 312,
-      category: "Chemistry",
-      color: "green"
-    },
-    {
-      id: "4",
-      name: "Calculus 2",
-      description: "MATH 1302",
-      memberCount: 156,
-      category: "History",
-      color: "orange"
-    },
-    {
-      id: "5",
-      name: "Introduction to Psychology",
-      description: "Psych 1001",
-      memberCount: 428,
-      category: "Psychology",
-      color: "pink"
-    },
-    {
-      id: "6",
-      name: "Data Structures and Algorithms",
-      description: "CSE 2407",
-      memberCount: 203,
-      category: "Computer Science",
-      color: "blue"
-    }
-  ];
+  // Map courses from database to ClassCard format
+  const classes: ClassCard[] = courses
+    ? courses.map((course) => {
+        const { category, color } = getCategoryAndColor(course.tag, course.name);
+        return {
+          id: course._id,
+          name: course.name,
+          description: course.tag,
+          memberCount: course.memberCount,
+          category,
+          color,
+        };
+      })
+    : [];
 
-  const handleJoin = (classId: string) => {
+  const handleJoin = (classId: Id<"courses">) => {
     setJoinedClasses(prev => {
       const newSet = new Set(prev);
       if (newSet.has(classId)) {
@@ -128,8 +115,17 @@ export default function AllClasses() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {classes.map((classItem) => {
+          {courses === undefined ? (
+            <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+              Loading classes...
+            </div>
+          ) : classes.length === 0 ? (
+            <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+              No classes available yet.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {classes.map((classItem) => {
               const isJoined = joinedClasses.has(classItem.id);
               const colors = getColorClasses(classItem.color);
               
@@ -199,7 +195,8 @@ export default function AllClasses() {
                 </div>
               );
             })}
-          </div>
+            </div>
+          )}
         </div>
       </main>
     </div>

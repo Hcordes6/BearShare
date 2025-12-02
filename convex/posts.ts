@@ -42,6 +42,7 @@ export const getPosts = query({
         v.object({
             _id: v.id("posts"),
             _creationTime: v.number(),
+            courseId: v.id("courses"),
             title: v.string(),
             content: v.optional(v.string()),
             file: v.optional(v.id("_storage")),
