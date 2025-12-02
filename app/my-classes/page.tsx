@@ -1,8 +1,6 @@
 "use client";
 
-import AddPost from "../components/addPost";
 import Header from "../components/header";
-import PostCard from "../components/postCard";
 
 export default function MyClasses() {
   return (
@@ -14,10 +12,17 @@ export default function MyClasses() {
           <p className="text-gray-600 dark:text-gray-400 mb-8">
             Manage and view all your enrolled classes
           </p>
-          <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <AddPost />
-            <PostCard />
-          </main>
+          
+          {/* Placeholder for enrolled classes list */}
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-8 text-center">
+            <p className="text-gray-500 dark:text-gray-400">
+              Your enrolled classes will appear here. Visit the{" "}
+              <a href="/all-classes" className="text-blue-600 dark:text-blue-400 hover:underline">
+                All Classes
+              </a>{" "}
+              page to join classes.
+            </p>
+          </div>
         </div>
       </main>
     </div>

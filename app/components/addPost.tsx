@@ -3,8 +3,13 @@
 import { api } from "@/convex/_generated/api";
 import { useMutation } from "convex/react";
 import { useState, useRef, useEffect, FormEvent } from "react";
+import { Id } from "@/convex/_generated/dataModel";
 
-export default function AddPost() {
+interface AddPostProps {
+    courseId: Id<"courses">;
+}
+
+export default function AddPost({ courseId }: AddPostProps) {
     const createTextPost = useMutation(api.posts.createTextPost);
     {/* This is necessary for temporary url for file upload */}
     const generateUploadUrl = useMutation(api.posts.generateUploadUrl);
@@ -57,7 +62,7 @@ export default function AddPost() {
             });
             const { storageId } = await result.json();
 
-            await createFilePost({ title: title.trim(), storageId });
+            await createFilePost({ courseId, title: title.trim(), storageId });
             setSelectedFile(null);
             setTitle("");
             setPostType(null);
@@ -191,7 +196,7 @@ export default function AddPost() {
                             {/* This is the button to post the text post */}
                             <div className="flex justify-end">
                                 <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-150 cursor-pointer"
-                                onClick={() => createTextPost({ title: title, content: content }).then(() => {
+                                onClick={() => createTextPost({ courseId, title: title, content: content }).then(() => {
                                     setTitle("");
                                     setContent("");
                                     setPostType(null);
