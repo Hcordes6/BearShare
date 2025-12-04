@@ -17,7 +17,7 @@ export default function MyClasses() {
           <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-8 text-center">
             <p className="text-gray-500 dark:text-gray-400">
               Your enrolled classes will appear here. Visit the{" "}
-              <a href="/all-classes" className="text-blue-600 dark:text-blue-400 hover:underline">
+              <a href="/all-classes" className="text-red-600 dark:text-red-400 hover:underline">
                 All Classes
               </a>{" "}
               page to join classes.

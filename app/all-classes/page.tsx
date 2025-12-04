@@ -70,10 +70,10 @@ export default function AllClasses() {
   const getColorClasses = (color: string) => {
     const colorMap: Record<string, { bg: string; text: string; button: string; hover: string }> = {
       blue: {
-        bg: "bg-blue-50 dark:bg-blue-950/20",
-        text: "text-blue-600 dark:text-blue-400",
-        button: "bg-blue-600 hover:bg-blue-700",
-        hover: "hover:bg-blue-100 dark:hover:bg-blue-950/40"
+        bg: "bg-red-50 dark:bg-red-950/20",
+        text: "text-red-600 dark:text-red-400",
+        button: "bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700",
+        hover: "hover:bg-red-100 dark:hover:bg-red-950/40"
       },
       purple: {
         bg: "bg-purple-50 dark:bg-purple-950/20",
