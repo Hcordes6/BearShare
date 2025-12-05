@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { gsap } from 'gsap';
 // use your own icon import if react-icons is not available
 import { GoArrowUpRight } from 'react-icons/go';
+import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 
 type CardNavLink = {
   label: string;
@@ -199,13 +200,28 @@ const CardNav: React.FC<CardNavProps> = ({
             <img src={logo} alt={logoAlt} className="logo h-[50px]" />
           </div>
 
-          <button
-            type="button"
-            className="card-nav-cta-button hidden md:inline-flex border-0 rounded-[calc(0.75rem-0.2rem)] px-4 items-center h-full font-medium cursor-pointer transition-colors duration-300"
-            style={{ backgroundColor: buttonBgColor, color: buttonTextColor }}
-          >
-            P
-          </button>
+          <div className="card-nav-cta-button hidden md:inline-flex items-center h-full">
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button
+                  type="button"
+                  className="border-0 rounded-[calc(0.75rem-0.2rem)] px-4 h-full font-medium cursor-pointer transition-colors duration-300"
+                  style={{ backgroundColor: buttonBgColor, color: buttonTextColor }}
+                >
+                  Sign In
+                </button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <UserButton 
+                appearance={{
+                  elements: {
+                    avatarBox: "h-full w-auto aspect-square"
+                  }
+                }}
+              />
+            </SignedIn>
+          </div>
         </div>
 
         <div
