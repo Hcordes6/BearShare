@@ -14,7 +14,7 @@ export default function Home() {
             Share & Learn Together
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 mb-8">
-            BearShare is a collaborative platform designed for students and educators to share resources, 
+            BearShare is a collaborative platform designed for students to share resources, 
             connect with classes, and learn together.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -65,7 +65,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">Join Classes</h3>
               <p className="text-gray-600">
-                Discover and join classes relevant to your interests. Access shared resources 
+                Join classes that you are enrolled in. Access shared resources 
                 and collaborate with classmates in one place.
               </p>
             </div>
