@@ -93,7 +93,7 @@ export default function AddPost({ courseId }: AddPostProps) {
                 <>
                     <button
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 text-white px-6 py-2 rounded-md cursor-pointer transition-colors duration-200 flex items-center gap-2 shadow-md"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md cursor-pointer transition-colors duration-200 flex items-center gap-2 shadow-md"
                     >
                         <span>+</span>
                         <span>Add Post</span>
@@ -188,14 +188,14 @@ export default function AddPost({ courseId }: AddPostProps) {
                                 <textarea
                                     placeholder="Write your post content..."
                                     rows={6}
-                                    className="px-4 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                                    className="px-4 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                                     value={content}
                                     onChange={(e) => setContent(e.target.value)}
                                 />
                             </div>
                             {/* This is the button to post the text post */}
                             <div className="flex justify-end">
-                                <button className="px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 text-white rounded-md transition-colors duration-150 cursor-pointer"
+                                <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-150 cursor-pointer"
                                 onClick={() => createTextPost({ courseId, title: title, content: content }).then(() => {
                                     setTitle("");
                                     setContent("");
@@ -238,7 +238,7 @@ export default function AddPost({ courseId }: AddPostProps) {
                                 <input
                                     type="text"
                                     placeholder="Enter post title..."
-                                    className="px-4 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                    className="px-4 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                     required
@@ -247,7 +247,7 @@ export default function AddPost({ courseId }: AddPostProps) {
                             {/* This is the file input */}
                             <div className="flex flex-col gap-2">
                                 <label className="text-sm font-medium text-gray-700">File</label>
-                                <div className="border-2 border-dashed border-gray-300 rounded-md p-8 text-center hover:border-red-400 dark:hover:border-red-500 transition-colors duration-150 cursor-pointer">
+                                <div className="border-2 border-dashed border-gray-300 rounded-md p-8 text-center hover:border-blue-400 transition-colors duration-150 cursor-pointer">
                                     <input
                                         type="file"
                                         id="file-upload"
@@ -312,7 +312,7 @@ export default function AddPost({ courseId }: AddPostProps) {
                                 <textarea
                                     placeholder="Add a description for your file..."
                                     rows={3}
-                                    className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                                    className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                                 />
                             </div>
                             {/* This is the button to post the file post */}
@@ -325,7 +325,7 @@ export default function AddPost({ courseId }: AddPostProps) {
                                     Cancel
                                 </button>
                                 <button
-                                    className="px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 text-white rounded-md transition-colors duration-150 cursor-pointer disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-150 cursor-pointer disabled:bg-gray-300 disabled:cursor-not-allowed"
                                     type="submit"
                                     disabled={!selectedFile || !title.trim()}
                                 >

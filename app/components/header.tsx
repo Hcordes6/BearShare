@@ -11,8 +11,8 @@ export default function Header() {
     const items = [
         {
           label: "Find a Class",
-          bgColor: "#1a0f0f", // Dark with red tint
-          textColor: "#fff",
+          bgColor: "#dbeafe", // Light blue
+          textColor: "#1e40af",
           links: [
             { label: "All Classes", href: "/all-classes", ariaLabel: "All Classes" },
             { label: "Request a Class", href: "/", ariaLabel: "Request a Class" },
@@ -20,8 +20,8 @@ export default function Header() {
         },
         {
           label: "My Classes", 
-          bgColor: "#0f1a0f", // Dark with green tint
-          textColor: "#fff",
+          bgColor: "#ede9fe", // Light purple
+          textColor: "#6b21a8",
           links: [
             { label: "Class 1", href: "/my-classes", ariaLabel: "My Classes" },
             { label: "Class 2", href: "/my-classes", ariaLabel: "My Classes" },
@@ -31,8 +31,8 @@ export default function Header() {
         },
         {
           label: "Settings",
-          bgColor: "#1a1a1a", // Neutral dark
-          textColor: "#fff",
+          bgColor: "#fef3c7", // Light amber
+          textColor: "#92400e",
           links: [
             { label: "Account", href: "/settings/account", ariaLabel: "Account" },
             { label: "Notifications", href: "/settings/notifications", ariaLabel: "Notifications" },
@@ -42,9 +42,9 @@ export default function Header() {
     return (
         <CardNav logo="/assets/bearShareLogo.png"
         items={items}
-        baseColor="#1a1a1a"
-        menuColor="#e5e5e5"
-        buttonBgColor="#dc2626"
+        baseColor="#ffffff"
+        menuColor="#1a1a1a"
+        buttonBgColor="#3b82f6"
         buttonTextColor="#fff"
         ease="elastic.out(1,0.8)"
       />

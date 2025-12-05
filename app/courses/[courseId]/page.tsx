@@ -35,7 +35,7 @@ export default function CoursePage() {
                     <div className="max-w-4xl mx-auto">
                         <div className="text-center">
                             <h1 className="text-2xl font-bold text-foreground mb-4">Course Not Found</h1>
-                            <p className="text-gray-600 dark:text-gray-400">
+                            <p className="text-gray-600">
                                 The course you're looking for doesn't exist.
                             </p>
                         </div>
@@ -58,7 +58,7 @@ export default function CoursePage() {
                         
                         {/* Tag and AddPost inline */}
                         <div className="flex flex-row items-center justify-between gap-4 mb-4">
-                            <p className="text-gray-600 dark:text-gray-400">
+                            <p className="text-gray-600">
                                 {course.tag}
                             </p>
                             
@@ -69,7 +69,7 @@ export default function CoursePage() {
                         </div>
 
                         {/* Member Count on separate line */}
-                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
                             <svg
                                 className="w-4 h-4"
                                 fill="none"

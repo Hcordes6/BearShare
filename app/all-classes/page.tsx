@@ -70,34 +70,34 @@ export default function AllClasses() {
   const getColorClasses = (color: string) => {
     const colorMap: Record<string, { bg: string; text: string; button: string; hover: string }> = {
       blue: {
-        bg: "bg-red-50 dark:bg-red-950/20",
-        text: "text-red-600 dark:text-red-400",
-        button: "bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700",
-        hover: "hover:bg-red-100 dark:hover:bg-red-950/40"
+        bg: "bg-blue-50",
+        text: "text-blue-600",
+        button: "bg-blue-600 hover:bg-blue-700",
+        hover: "hover:bg-blue-100"
       },
       purple: {
-        bg: "bg-purple-50 dark:bg-purple-950/20",
-        text: "text-purple-600 dark:text-purple-400",
+        bg: "bg-purple-50",
+        text: "text-purple-600",
         button: "bg-purple-600 hover:bg-purple-700",
-        hover: "hover:bg-purple-100 dark:hover:bg-purple-950/40"
+        hover: "hover:bg-purple-100"
       },
       green: {
-        bg: "bg-green-50 dark:bg-green-950/20",
-        text: "text-green-600 dark:text-green-400",
+        bg: "bg-green-50",
+        text: "text-green-600",
         button: "bg-green-600 hover:bg-green-700",
-        hover: "hover:bg-green-100 dark:hover:bg-green-950/40"
+        hover: "hover:bg-green-100"
       },
       orange: {
-        bg: "bg-orange-50 dark:bg-orange-950/20",
-        text: "text-orange-600 dark:text-orange-400",
+        bg: "bg-orange-50",
+        text: "text-orange-600",
         button: "bg-orange-600 hover:bg-orange-700",
-        hover: "hover:bg-orange-100 dark:hover:bg-orange-950/40"
+        hover: "hover:bg-orange-100"
       },
       pink: {
-        bg: "bg-pink-50 dark:bg-pink-950/20",
-        text: "text-pink-600 dark:text-pink-400",
+        bg: "bg-pink-50",
+        text: "text-pink-600",
         button: "bg-pink-600 hover:bg-pink-700",
-        hover: "hover:bg-pink-100 dark:hover:bg-pink-950/40"
+        hover: "hover:bg-pink-100"
       }
     };
     return colorMap[color] || colorMap.blue;
@@ -110,17 +110,17 @@ export default function AllClasses() {
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">All Classes</h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600">
               Discover and join classes to start sharing and learning together
             </p>
           </div>
 
           {courses === undefined ? (
-            <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+            <div className="text-center text-gray-500 py-8">
               Loading classes...
             </div>
           ) : classes.length === 0 ? (
-            <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+            <div className="text-center text-gray-500 py-8">
               No classes available yet.
             </div>
           ) : (
@@ -132,7 +132,7 @@ export default function AllClasses() {
               return (
                 <div
                   key={classItem.id}
-                  className={`${colors.bg} ${colors.hover} rounded-xl p-6 border border-gray-200 dark:border-gray-800 transition-all duration-200 shadow-sm hover:shadow-md`}
+                  className={`${colors.bg} ${colors.hover} rounded-xl p-6 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md`}
                 >
                   {/* Category Badge */}
                   <div className="mb-3">
@@ -147,16 +147,16 @@ export default function AllClasses() {
                   </h2>
 
                   {/* Description */}
-                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-3">
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">
                     {classItem.description}
                   </p>
 
                   {/* Member Count and Buttons */}
-                  <div className="flex flex-col gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
+                  <div className="flex flex-col gap-3 pt-4 border-t border-gray-200">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <svg
-                          className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                          className="w-4 h-4 text-gray-500"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -168,7 +168,7 @@ export default function AllClasses() {
                             d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                           />
                         </svg>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <span className="text-sm font-medium text-gray-700">
                           {classItem.memberCount} {classItem.memberCount === 1 ? "member" : "members"}
                         </span>
                       </div>
