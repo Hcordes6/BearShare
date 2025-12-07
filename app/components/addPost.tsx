@@ -1,7 +1,8 @@
 "use client";
 
 import { api } from "@/convex/_generated/api";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
+import { useUser } from "@clerk/nextjs";
 import { useState, useRef, useEffect, FormEvent } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 
@@ -10,10 +11,21 @@ interface AddPostProps {
 }
 
 export default function AddPost({ courseId }: AddPostProps) {
+    const { isSignedIn } = useUser();
     const createTextPost = useMutation(api.posts.createTextPost);
     {/* This is necessary for temporary url for file upload */}
     const generateUploadUrl = useMutation(api.posts.generateUploadUrl);
     const createFilePost = useMutation(api.posts.createFilePost);
+    
+    const isMember = useQuery(
+        api.memberships.isMember,
+        isSignedIn ? { courseId } : "skip"
+    );
+
+    // Don't render if user is not a member
+    if (!isSignedIn || !isMember) {
+        return null;
+    }
 
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);

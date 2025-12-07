@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
+import { useUser } from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import Header from "../components/header";
@@ -37,8 +37,17 @@ const getCategoryAndColor = (tag: string, name: string): { category: string; col
 };
 
 export default function AllClasses() {
-  const [joinedClasses, setJoinedClasses] = useState<Set<Id<"courses">>>(new Set());
+  const { isSignedIn } = useUser();
   const courses = useQuery(api.courses.getAllCourses);
+  const joinCourse = useMutation(api.memberships.joinCourse);
+  const leaveCourse = useMutation(api.memberships.leaveCourse);
+
+  // Get membership status for all courses
+  const courseIds = courses ? courses.map((c) => c._id) : [];
+  const membershipStatus = useQuery(
+    api.memberships.getMembershipStatus,
+    courseIds.length > 0 ? { courseIds } : "skip"
+  );
 
   // Map courses from database to ClassCard format
   const classes: ClassCard[] = courses
@@ -55,16 +64,24 @@ export default function AllClasses() {
       })
     : [];
 
-  const handleJoin = (classId: Id<"courses">) => {
-    setJoinedClasses(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(classId)) {
-        newSet.delete(classId);
+  const handleJoin = async (classId: Id<"courses">) => {
+    if (!isSignedIn) {
+      alert("Please sign in to join classes");
+      return;
+    }
+
+    const isJoined = membershipStatus?.[classId] || false;
+
+    try {
+      if (isJoined) {
+        await leaveCourse({ courseId: classId });
       } else {
-        newSet.add(classId);
+        await joinCourse({ courseId: classId });
       }
-      return newSet;
-    });
+    } catch (error) {
+      console.error("Error joining/leaving course:", error);
+      alert(error instanceof Error ? error.message : "Failed to join/leave course");
+    }
   };
 
   const getColorClasses = (color: string) => {
@@ -126,7 +143,7 @@ export default function AllClasses() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {classes.map((classItem) => {
-              const isJoined = joinedClasses.has(classItem.id);
+              const isJoined = membershipStatus?.[classItem.id] || false;
               const colors = getColorClasses(classItem.color);
               
               return (

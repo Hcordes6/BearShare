@@ -197,7 +197,7 @@ const CardNav: React.FC<CardNavProps> = ({
             aria-label="All Classes"
             tabIndex={0}
           >
-            <img src={logo} alt={logoAlt} className="logo h-[50px]" />
+            <img src={logo} alt={logoAlt} className="logo h-[40px]" />
           </div>
 
           <div className="card-nav-cta-button hidden md:inline-flex items-center h-full">
@@ -216,7 +216,7 @@ const CardNav: React.FC<CardNavProps> = ({
               <UserButton 
                 appearance={{
                   elements: {
-                    avatarBox: "h-full w-auto aspect-square"
+                    avatarBox: "h-10 w-10"
                   }
                 }}
               />
