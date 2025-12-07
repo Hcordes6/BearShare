@@ -10,6 +10,25 @@ export const createTextPost = mutation({
         content: v.string(),
     },
     handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new Error("Must be logged in to create a post");
+        }
+
+        const userId = identity.subject;
+
+        // Check if user is a member of the course
+        const membership = await ctx.db
+            .query("userCourseMemberships")
+            .withIndex("by_user_and_course", (q) =>
+                q.eq("userId", userId).eq("courseId", args.courseId)
+            )
+            .first();
+
+        if (!membership) {
+            throw new Error("You must join the course before posting");
+        }
+
         const post = await ctx.db.insert("posts", {
             courseId: args.courseId,
             title: args.title,
@@ -28,6 +47,25 @@ export const generateUploadUrl = mutation({
 export const createFilePost = mutation({
     args: { courseId: v.id("courses"), storageId: v.id("_storage"), title: v.string() },
     handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new Error("Must be logged in to create a post");
+        }
+
+        const userId = identity.subject;
+
+        // Check if user is a member of the course
+        const membership = await ctx.db
+            .query("userCourseMemberships")
+            .withIndex("by_user_and_course", (q) =>
+                q.eq("userId", userId).eq("courseId", args.courseId)
+            )
+            .first();
+
+        if (!membership) {
+            throw new Error("You must join the course before posting");
+        }
+
         await ctx.db.insert("posts", {
             courseId: args.courseId,
             file: args.storageId,

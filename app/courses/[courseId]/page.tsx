@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useQuery } from "convex/react";
+import { useQuery, useConvexAuth } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import Header from "../../components/header";
@@ -11,8 +11,13 @@ import PostCard from "../../components/postCard";
 export default function CoursePage() {
     const params = useParams();
     const courseId = params.courseId as Id<"courses">;
+    const { isAuthenticated } = useConvexAuth();
 
     const course = useQuery(api.courses.getCourse, { courseId });
+    const isMember = useQuery(
+        api.memberships.isMember,
+        isAuthenticated ? { courseId } : "skip"
+    );
 
     if (course === undefined) {
         return (
@@ -62,10 +67,19 @@ export default function CoursePage() {
                                 {course.tag}
                             </p>
                             
-                            {/* Add Post Component - inline with tag */}
-                            <div className="shrink-0">
-                                <AddPost courseId={courseId} />
-                            </div>
+                            {/* Add Post Component - inline with tag, only show if user is a member */}
+                            {isAuthenticated && isMember && (
+                                <div className="shrink-0">
+                                    <AddPost courseId={courseId} />
+                                </div>
+                            )}
+                            {isAuthenticated && !isMember && (
+                                <div className="shrink-0">
+                                    <p className="text-sm text-gray-500 italic">
+                                        Join this course to post
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
                         {/* Member Count on separate line */}

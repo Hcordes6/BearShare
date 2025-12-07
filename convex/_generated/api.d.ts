@@ -8,7 +8,9 @@
  * @module
  */
 
+import type * as authTest from "../authTest.js";
 import type * as courses from "../courses.js";
+import type * as memberships from "../memberships.js";
 import type * as posts from "../posts.js";
 
 import type {
@@ -18,7 +20,9 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  authTest: typeof authTest;
   courses: typeof courses;
+  memberships: typeof memberships;
   posts: typeof posts;
 }>;
 

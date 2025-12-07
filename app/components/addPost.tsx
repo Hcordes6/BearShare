@@ -1,7 +1,7 @@
 "use client";
 
 import { api } from "@/convex/_generated/api";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { useState, useRef, useEffect, FormEvent } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 
@@ -14,6 +14,14 @@ export default function AddPost({ courseId }: AddPostProps) {
     {/* This is necessary for temporary url for file upload */}
     const generateUploadUrl = useMutation(api.posts.generateUploadUrl);
     const createFilePost = useMutation(api.posts.createFilePost);
+    
+    // This component should only be rendered inside <Authenticated>, so we can safely query
+    const isMember = useQuery(api.memberships.isMember, { courseId });
+
+    // Don't render if user is not a member
+    if (!isMember) {
+        return null;
+    }
 
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);

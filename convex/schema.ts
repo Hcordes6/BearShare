@@ -20,4 +20,11 @@ export default defineSchema({
     content: v.optional(v.string()),
     file: v.optional(v.id("_storage")),
   }).index("by_course", ["courseId"]), // index to query posts by courseId -- more efficient lookup
+  userCourseMemberships: defineTable({
+    userId: v.string(), // Clerk user ID
+    courseId: v.id("courses"),
+  })
+    .index("by_user", ["userId"])
+    .index("by_course", ["courseId"])
+    .index("by_user_and_course", ["userId", "courseId"]), // composite index for membership lookup
 });
