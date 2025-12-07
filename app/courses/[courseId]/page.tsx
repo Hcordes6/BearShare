@@ -1,8 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useQuery } from "convex/react";
-import { useUser } from "@clerk/nextjs";
+import { useQuery, useConvexAuth } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import Header from "../../components/header";
@@ -12,12 +11,12 @@ import PostCard from "../../components/postCard";
 export default function CoursePage() {
     const params = useParams();
     const courseId = params.courseId as Id<"courses">;
-    const { isSignedIn } = useUser();
+    const { isAuthenticated } = useConvexAuth();
 
     const course = useQuery(api.courses.getCourse, { courseId });
     const isMember = useQuery(
         api.memberships.isMember,
-        isSignedIn ? { courseId } : "skip"
+        isAuthenticated ? { courseId } : "skip"
     );
 
     if (course === undefined) {
@@ -69,12 +68,12 @@ export default function CoursePage() {
                             </p>
                             
                             {/* Add Post Component - inline with tag, only show if user is a member */}
-                            {isSignedIn && isMember && (
+                            {isAuthenticated && isMember && (
                                 <div className="shrink-0">
                                     <AddPost courseId={courseId} />
                                 </div>
                             )}
-                            {isSignedIn && !isMember && (
+                            {isAuthenticated && !isMember && (
                                 <div className="shrink-0">
                                     <p className="text-sm text-gray-500 italic">
                                         Join this course to post
