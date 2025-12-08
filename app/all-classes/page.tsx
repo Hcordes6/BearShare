@@ -129,9 +129,6 @@ export default function AllClasses() {
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">All Classes</h1>
-            <p className="text-gray-600">
-              Discover and join classes to start sharing and learning together
-            </p>
           </div>
 
           {courses === undefined ? (
