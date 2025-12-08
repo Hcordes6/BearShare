@@ -56,8 +56,7 @@ export default function Header() {
           bgColor: "#fef3c7", // Light amber
           textColor: "#92400e",
           links: [
-            { label: "Account", href: "/settings/account", ariaLabel: "Account" },
-            { label: "Notifications", href: "/settings/notifications", ariaLabel: "Notifications" },
+            { label: "Account", href: "/account", ariaLabel: "Account" },
           ]
         }
     ];
