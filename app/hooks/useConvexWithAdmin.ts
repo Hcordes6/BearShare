@@ -1,6 +1,7 @@
 "use client";
 
-import { useQuery as useConvexQuery, useMutation as useConvexMutation, FunctionArgs, FunctionReference } from "convex/react";
+import { useQuery as useConvexQuery, useMutation as useConvexMutation } from "convex/react";
+import type { FunctionArgs, FunctionReference } from "convex/server";
 import { useAdmin } from "../contexts/AdminContext";
 
 /**
@@ -19,10 +20,10 @@ export function useQuery<Query extends FunctionReference<"query">>(
     
     // Otherwise, add adminPassword if admin is logged in
     const argsWithAdmin = args 
-        ? { ...args, adminPassword: isAdmin ? adminPassword : undefined }
-        : isAdmin ? { adminPassword } : undefined;
+        ? { ...args, adminPassword: isAdmin ? adminPassword : undefined } as FunctionArgs<Query>
+        : isAdmin ? { adminPassword } as FunctionArgs<Query> : undefined;
     
-    return useConvexQuery(query, argsWithAdmin);
+    return useConvexQuery(query, argsWithAdmin as any);
 }
 
 /**
