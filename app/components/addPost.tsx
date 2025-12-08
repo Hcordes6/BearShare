@@ -287,7 +287,7 @@ export default function AddPost({ courseId }: AddPostProps) {
                                             Click to upload or drag and drop
                                         </span>
                                         <span className="text-sm text-gray-500">
-                                            PNG, JPG, or PDF files only
+                                            PNG or JPG files only
                                         </span>
                                     </label>
                                 </div>

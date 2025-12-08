@@ -17,7 +17,12 @@ export default function Account() {
                 </div>  
             ) : (
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 flex flex-col items-center justify-center">
-                    <SignInButton />
+                    <h1 className="text-2xl font-bold text-foreground mb-6">Please sign in to your account to view your account</h1>
+                    <div className="bg-blue-600 text-white px-4 py-2 rounded-md">
+                        <SignInButton>
+                            <button className="text-white px-4 py-2 rounded-md">Sign in</button>
+                        </SignInButton>
+                    </div>
                 </div>
             )}
         </div>
