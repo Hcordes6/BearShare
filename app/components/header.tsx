@@ -4,19 +4,21 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import CardNav from "./animations/cardNav";
 import { useAuth } from "@clerk/nextjs";
-import {useQuery} from "convex/react";
+import { useQuery } from "../hooks/useConvexWithAdmin";
 import { api } from "@/convex/_generated/api";
+import { useAdmin } from "../contexts/AdminContext";
 
 
 
 export default function Header() {
     const pathname = usePathname();
     const { isSignedIn } = useAuth();
-    const enrolledClasses = useQuery(api.memberships.getMyCourses);
+    const { isAdmin } = useAdmin();
+    const enrolledClasses = useQuery(api.memberships.getMyCourses, {});
 
     // Build "My Classes" links based on enrollment status
     const myClassesLinks: Array<{ label: string; href: string; ariaLabel: string }> = [];
-    if (isSignedIn && enrolledClasses) {
+    if ((isSignedIn || isAdmin) && enrolledClasses) {
         // Show up to 3 enrolled classes
         const classesToShow = enrolledClasses.slice(0, 3);
         classesToShow.forEach((course) => {

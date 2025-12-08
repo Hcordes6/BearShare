@@ -1,24 +1,21 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import { getUserId } from "./auth";
 
 /**
- * Join a course. Requires authentication.
+ * Join a course. Requires authentication (Clerk or Admin).
  */
 export const joinCourse = mutation({
-    args: { courseId: v.id("courses") },
+    args: { 
+        courseId: v.id("courses"),
+        adminPassword: v.optional(v.string()),
+    },
     returns: v.null(),
     handler: async (ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
-        if (!identity) {
-            console.error("[joinCourse] No identity found.");
-            console.error("[joinCourse] This means the JWT token is either:");
-            console.error("  1. Not being passed from the frontend");
-            console.error("  2. Not being validated by Convex (check auth.config.ts)");
-            console.error("  3. The issuer domain doesn't match auth.config.ts domain");
+        const userId = await getUserId(ctx, args.adminPassword);
+        if (!userId) {
             throw new Error("Must be logged in to join a course");
         }
-
-        const userId = identity.subject;
 
         // Check if already a member
         const existing = await ctx.db
@@ -52,18 +49,19 @@ export const joinCourse = mutation({
 });
 
 /**
- * Leave a course. Requires authentication.
+ * Leave a course. Requires authentication (Clerk or Admin).
  */
 export const leaveCourse = mutation({
-    args: { courseId: v.id("courses") },
+    args: { 
+        courseId: v.id("courses"),
+        adminPassword: v.optional(v.string()),
+    },
     returns: v.null(),
     handler: async (ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
-        if (!identity) {
+        const userId = await getUserId(ctx, args.adminPassword);
+        if (!userId) {
             throw new Error("Must be logged in to leave a course");
         }
-
-        const userId = identity.subject;
 
         // Find and remove membership
         const existing = await ctx.db
@@ -93,15 +91,16 @@ export const leaveCourse = mutation({
  * Check if the current user is a member of a course.
  */
 export const isMember = query({
-    args: { courseId: v.id("courses") },
+    args: { 
+        courseId: v.id("courses"),
+        adminPassword: v.optional(v.string()),
+    },
     returns: v.boolean(),
     handler: async (ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
-        if (!identity) {
+        const userId = await getUserId(ctx, args.adminPassword);
+        if (!userId) {
             return false;
         }
-
-        const userId = identity.subject;
 
         const membership = await ctx.db
             .query("userCourseMemberships")
@@ -118,6 +117,9 @@ export const isMember = query({
  * Get all courses the current user has joined.
  */
 export const getMyCourses = query({
+    args: {
+        adminPassword: v.optional(v.string()),
+    } as any, // Make args optional by allowing empty object
     returns: v.array(
         v.object({
             _id: v.id("courses"),
@@ -127,13 +129,11 @@ export const getMyCourses = query({
             memberCount: v.number(),
         })
     ),
-    handler: async (ctx) => {
-        const identity = await ctx.auth.getUserIdentity();
-        if (!identity) {
+    handler: async (ctx, args) => {
+        const userId = await getUserId(ctx, args.adminPassword);
+        if (!userId) {
             return [];
         }
-
-        const userId = identity.subject;
 
         // Get all memberships for this user
         const memberships = await ctx.db
@@ -157,18 +157,19 @@ export const getMyCourses = query({
  * Get membership status for multiple courses (returns a map of courseId -> isMember)
  */
 export const getMembershipStatus = query({
-    args: { courseIds: v.array(v.id("courses")) },
+    args: { 
+        courseIds: v.array(v.id("courses")),
+        adminPassword: v.optional(v.string()),
+    },
     returns: v.record(v.id("courses"), v.boolean()),
     handler: async (ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
-        if (!identity) {
+        const userId = await getUserId(ctx, args.adminPassword);
+        if (!userId) {
             // Return all false if not authenticated
             return Object.fromEntries(
                 args.courseIds.map((id) => [id, false])
             ) as Record<string, boolean>;
         }
-
-        const userId = identity.subject;
 
         // Get all memberships for this user and the specified courses
         const memberships = await ctx.db

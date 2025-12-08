@@ -2,31 +2,34 @@ import { v } from "convex/values";
 import { query, mutation, action } from "./_generated/server";
 import { api } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
+import { getUserId, isAdminUser, ADMIN_USER_ID } from "./auth";
 
 export const createTextPost = mutation({
     args: {
         courseId: v.id("courses"),
         title: v.string(),
         content: v.string(),
+        adminPassword: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
-        if (!identity) {
+        const userId = await getUserId(ctx, args.adminPassword);
+        if (!userId) {
             throw new Error("Must be logged in to create a post");
         }
 
-        const userId = identity.subject;
+        // Admins can post without being a member
+        if (!isAdminUser(userId)) {
+            // Check if user is a member of the course
+            const membership = await ctx.db
+                .query("userCourseMemberships")
+                .withIndex("by_user_and_course", (q) =>
+                    q.eq("userId", userId).eq("courseId", args.courseId)
+                )
+                .first();
 
-        // Check if user is a member of the course
-        const membership = await ctx.db
-            .query("userCourseMemberships")
-            .withIndex("by_user_and_course", (q) =>
-                q.eq("userId", userId).eq("courseId", args.courseId)
-            )
-            .first();
-
-        if (!membership) {
-            throw new Error("You must join the course before posting");
+            if (!membership) {
+                throw new Error("You must join the course before posting");
+            }
         }
 
         const post = await ctx.db.insert("posts", {
@@ -45,25 +48,31 @@ export const generateUploadUrl = mutation({
 });
 
 export const createFilePost = mutation({
-    args: { courseId: v.id("courses"), storageId: v.id("_storage"), title: v.string() },
+    args: { 
+        courseId: v.id("courses"), 
+        storageId: v.id("_storage"), 
+        title: v.string(),
+        adminPassword: v.optional(v.string()),
+    },
     handler: async (ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
-        if (!identity) {
+        const userId = await getUserId(ctx, args.adminPassword);
+        if (!userId) {
             throw new Error("Must be logged in to create a post");
         }
 
-        const userId = identity.subject;
+        // Admins can post without being a member
+        if (!isAdminUser(userId)) {
+            // Check if user is a member of the course
+            const membership = await ctx.db
+                .query("userCourseMemberships")
+                .withIndex("by_user_and_course", (q) =>
+                    q.eq("userId", userId).eq("courseId", args.courseId)
+                )
+                .first();
 
-        // Check if user is a member of the course
-        const membership = await ctx.db
-            .query("userCourseMemberships")
-            .withIndex("by_user_and_course", (q) =>
-                q.eq("userId", userId).eq("courseId", args.courseId)
-            )
-            .first();
-
-        if (!membership) {
-            throw new Error("You must join the course before posting");
+            if (!membership) {
+                throw new Error("You must join the course before posting");
+            }
         }
 
         await ctx.db.insert("posts", {

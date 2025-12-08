@@ -1,8 +1,32 @@
 "use client";
 
+import { useState } from "react";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import Header from "../components/header";
 
 export default function RequestClass() {
+    const [submitted, setSubmitted] = useState(false);
+    const submitRequest = useMutation(api.admin.submitCourseRequest);
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        
+        try {
+            await submitRequest({
+                className: formData.get("className") as string,
+                classTag: formData.get("classTag") as string,
+                description: formData.get("description") as string || undefined,
+            });
+            setSubmitted(true);
+            e.currentTarget.reset();
+        } catch (error) {
+            console.error("Error submitting request:", error);
+            alert("Failed to submit request. Please try again.");
+        }
+    };
+
     return (
         <div className="flex flex-col min-h-screen bg-background pt-18">
             <Header />
@@ -15,7 +39,13 @@ export default function RequestClass() {
                         Can't find the class you're looking for? Request it here and we'll add it to the platform.
                     </p>
                     
-                    <form className="space-y-6">
+                    {submitted && (
+                        <div className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                            Your request has been submitted successfully! An admin will review it shortly.
+                        </div>
+                    )}
+                    
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
                             <label htmlFor="className" className="block text-sm font-medium text-foreground mb-2">
                                 Class Name
@@ -64,6 +94,15 @@ export default function RequestClass() {
                             Submit Request
                         </button>
                     </form>
+                    
+                    <div className="mt-6 text-center">
+                        <a
+                            href="/admin/login"
+                            className="text-blue-600 hover:text-blue-700 text-sm"
+                        >
+                            Admin Login
+                        </a>
+                    </div>
                 </div>
             </main>
         </div>

@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useQuery, useMutation, useConvexAuth } from "convex/react";
+import { useConvexAuth } from "convex/react";
+import { useQuery, useMutation } from "@/app/hooks/useConvexWithAdmin";
 import { api } from "@/convex/_generated/api";
+import { useAdmin } from "../contexts/AdminContext";
 import { Id } from "@/convex/_generated/dataModel";
 import Header from "../components/header";
 
@@ -37,15 +39,16 @@ const getCategoryAndColor = (tag: string, name: string): { category: string; col
 
 export default function AllClasses() {
   const { isAuthenticated } = useConvexAuth();
+  const { isAdmin } = useAdmin();
   const courses = useQuery(api.courses.getAllCourses);
   const joinCourse = useMutation(api.memberships.joinCourse);
   const leaveCourse = useMutation(api.memberships.leaveCourse);
 
-  // Get membership status for all courses (only if authenticated)
+  // Get membership status for all courses (only if authenticated or admin)
   const courseIds = courses ? courses.map((c) => c._id) : [];
   const membershipStatus = useQuery(
     api.memberships.getMembershipStatus,
-    isAuthenticated && courseIds.length > 0 ? { courseIds } : "skip"
+    (isAuthenticated || isAdmin) && courseIds.length > 0 ? { courseIds } : "skip"
   );
 
   // Map courses from database to ClassCard format
@@ -64,7 +67,7 @@ export default function AllClasses() {
     : [];
 
   const handleJoin = async (classId: Id<"courses">) => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !isAdmin) {
       alert("Please sign in to join classes");
       return;
     }

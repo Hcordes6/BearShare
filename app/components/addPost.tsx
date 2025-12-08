@@ -1,25 +1,28 @@
 "use client";
 
 import { api } from "@/convex/_generated/api";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation as useConvexMutation, useQuery } from "../hooks/useConvexWithAdmin";
 import { useState, useRef, useEffect, FormEvent } from "react";
 import { Id } from "@/convex/_generated/dataModel";
+import { useAdmin } from "../contexts/AdminContext";
+import { Authenticated, Unauthenticated } from "convex/react";
 
 interface AddPostProps {
     courseId: Id<"courses">;
 }
 
 export default function AddPost({ courseId }: AddPostProps) {
-    const createTextPost = useMutation(api.posts.createTextPost);
+    const { isAdmin } = useAdmin();
+    const createTextPost = useConvexMutation(api.posts.createTextPost);
     {/* This is necessary for temporary url for file upload */}
-    const generateUploadUrl = useMutation(api.posts.generateUploadUrl);
-    const createFilePost = useMutation(api.posts.createFilePost);
+    const generateUploadUrl = useConvexMutation(api.posts.generateUploadUrl);
+    const createFilePost = useConvexMutation(api.posts.createFilePost);
     
-    // This component should only be rendered inside <Authenticated>, so we can safely query
     const isMember = useQuery(api.memberships.isMember, { courseId });
 
-    // Don't render if user is not a member
-    if (!isMember) {
+    // Show component if user is a member OR if admin is logged in
+    // Admins can post without being members
+    if (!isAdmin && !isMember) {
         return null;
     }
 
@@ -62,7 +65,7 @@ export default function AddPost({ courseId }: AddPostProps) {
             return;
         }
         try {
-            const url = await generateUploadUrl();
+            const url = await generateUploadUrl(undefined as any);
             const result = await fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": selectedFile.type },
