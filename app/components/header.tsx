@@ -42,7 +42,7 @@ export default function Header() {
           textColor: "#1e40af",
           links: [
             { label: "All Classes", href: "/all-classes", ariaLabel: "All Classes" },
-            { label: "Request a Class", href: "/", ariaLabel: "Request a Class" },
+            { label: "Request a Class", href: "/request-class", ariaLabel: "Request a Class" },
           ]
         },
         {
