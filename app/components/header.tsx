@@ -3,9 +3,36 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import CardNav from "./animations/cardNav";
+import { useAuth } from "@clerk/nextjs";
+import {useQuery} from "convex/react";
+import { api } from "@/convex/_generated/api";
+
+
 
 export default function Header() {
     const pathname = usePathname();
+    const { isSignedIn } = useAuth();
+    const enrolledClasses = useQuery(api.memberships.getMyCourses);
+
+    // Build "My Classes" links based on enrollment status
+    const myClassesLinks: Array<{ label: string; href: string; ariaLabel: string }> = [];
+    if (isSignedIn && enrolledClasses) {
+        // Show up to 3 enrolled classes
+        const classesToShow = enrolledClasses.slice(0, 3);
+        classesToShow.forEach((course) => {
+            myClassesLinks.push({
+                label: course.name,
+                href: `/courses/${course._id}`,
+                ariaLabel: course.name,
+            });
+        });
+    }
+    // Always include "Manage Classes" link
+    myClassesLinks.push({
+        label: "Manage Classes",
+        href: "/my-classes",
+        ariaLabel: "Manage Classes",
+    });
 
     // Header Menu Content -- Change for classes?
     const items = [
@@ -22,12 +49,7 @@ export default function Header() {
           label: "My Classes", 
           bgColor: "#ede9fe", // Light purple
           textColor: "#6b21a8",
-          links: [
-            { label: "Class 1", href: "/my-classes", ariaLabel: "My Classes" },
-            { label: "Class 2", href: "/my-classes", ariaLabel: "My Classes" },
-            { label: "Class 3", href: "/my-classes", ariaLabel: "My Classes" },
-            { label: "Manage Classes", href: "/my-classes", ariaLabel: "My Classes" },
-          ]
+          links: myClassesLinks,
         },
         {
           label: "Settings",
