@@ -27,11 +27,4 @@ export default defineSchema({
     .index("by_user", ["userId"])
     .index("by_course", ["courseId"])
     .index("by_user_and_course", ["userId", "courseId"]), // composite index for membership lookup
-  courseRequests: defineTable({
-    className: v.string(),
-    classTag: v.string(),
-    description: v.optional(v.string()),
-    status: v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected")),
-  })
-    .index("by_status", ["status"]),
 });

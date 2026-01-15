@@ -1,21 +1,19 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
-import { getUserId } from "./auth";
 
 /**
- * Join a course. Requires authentication (Clerk or Admin).
+ * Join a course. Requires authentication.
  */
 export const joinCourse = mutation({
-    args: { 
-        courseId: v.id("courses"),
-        adminPassword: v.optional(v.string()),
-    },
+    args: { courseId: v.id("courses") },
     returns: v.null(),
     handler: async (ctx, args) => {
-        const userId = await getUserId(ctx, args.adminPassword);
-        if (!userId) {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
             throw new Error("Must be logged in to join a course");
         }
+
+        const userId = identity.subject;
 
         // Check if already a member
         const existing = await ctx.db
@@ -49,19 +47,18 @@ export const joinCourse = mutation({
 });
 
 /**
- * Leave a course. Requires authentication (Clerk or Admin).
+ * Leave a course. Requires authentication.
  */
 export const leaveCourse = mutation({
-    args: { 
-        courseId: v.id("courses"),
-        adminPassword: v.optional(v.string()),
-    },
+    args: { courseId: v.id("courses") },
     returns: v.null(),
     handler: async (ctx, args) => {
-        const userId = await getUserId(ctx, args.adminPassword);
-        if (!userId) {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
             throw new Error("Must be logged in to leave a course");
         }
+
+        const userId = identity.subject;
 
         // Find and remove membership
         const existing = await ctx.db
@@ -91,16 +88,15 @@ export const leaveCourse = mutation({
  * Check if the current user is a member of a course.
  */
 export const isMember = query({
-    args: { 
-        courseId: v.id("courses"),
-        adminPassword: v.optional(v.string()),
-    },
+    args: { courseId: v.id("courses") },
     returns: v.boolean(),
     handler: async (ctx, args) => {
-        const userId = await getUserId(ctx, args.adminPassword);
-        if (!userId) {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
             return false;
         }
+
+        const userId = identity.subject;
 
         const membership = await ctx.db
             .query("userCourseMemberships")
@@ -117,9 +113,6 @@ export const isMember = query({
  * Get all courses the current user has joined.
  */
 export const getMyCourses = query({
-    args: {
-        adminPassword: v.optional(v.string()),
-    } as any, // Make args optional by allowing empty object
     returns: v.array(
         v.object({
             _id: v.id("courses"),
@@ -129,11 +122,13 @@ export const getMyCourses = query({
             memberCount: v.number(),
         })
     ),
-    handler: async (ctx, args) => {
-        const userId = await getUserId(ctx, args.adminPassword);
-        if (!userId) {
+    handler: async (ctx) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
             return [];
         }
+
+        const userId = identity.subject;
 
         // Get all memberships for this user
         const memberships = await ctx.db
@@ -157,19 +152,18 @@ export const getMyCourses = query({
  * Get membership status for multiple courses (returns a map of courseId -> isMember)
  */
 export const getMembershipStatus = query({
-    args: { 
-        courseIds: v.array(v.id("courses")),
-        adminPassword: v.optional(v.string()),
-    },
+    args: { courseIds: v.array(v.id("courses")) },
     returns: v.record(v.id("courses"), v.boolean()),
     handler: async (ctx, args) => {
-        const userId = await getUserId(ctx, args.adminPassword);
-        if (!userId) {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
             // Return all false if not authenticated
             return Object.fromEntries(
                 args.courseIds.map((id) => [id, false])
             ) as Record<string, boolean>;
         }
+
+        const userId = identity.subject;
 
         // Get all memberships for this user and the specified courses
         const memberships = await ctx.db

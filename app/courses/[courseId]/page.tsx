@@ -7,19 +7,16 @@ import { Id } from "@/convex/_generated/dataModel";
 import Header from "../../components/header";
 import AddPost from "../../components/addPost";
 import PostCard from "../../components/postCard";
-import { useAdmin } from "../../contexts/AdminContext";
-import { useQuery as useAdminQuery } from "../../hooks/useConvexWithAdmin";
 
 export default function CoursePage() {
     const params = useParams();
     const courseId = params.courseId as Id<"courses">;
     const { isAuthenticated } = useConvexAuth();
-    const { isAdmin } = useAdmin();
 
     const course = useQuery(api.courses.getCourse, { courseId });
-    const isMember = useAdminQuery(
+    const isMember = useQuery(
         api.memberships.isMember,
-        (isAuthenticated || isAdmin) ? { courseId } : "skip"
+        isAuthenticated ? { courseId } : "skip"
     );
 
     if (course === undefined) {
@@ -70,13 +67,13 @@ export default function CoursePage() {
                                 {course.tag}
                             </p>
                             
-                            {/* Add Post Component - inline with tag, show if user is a member or admin */}
-                            {((isAuthenticated && isMember) || isAdmin) && (
+                            {/* Add Post Component - inline with tag, only show if user is a member */}
+                            {isAuthenticated && isMember && (
                                 <div className="shrink-0">
                                     <AddPost courseId={courseId} />
                                 </div>
                             )}
-                            {isAuthenticated && !isMember && !isAdmin && (
+                            {isAuthenticated && !isMember && (
                                 <div className="shrink-0">
                                     <p className="text-sm text-gray-500 italic">
                                         Join this course to post
