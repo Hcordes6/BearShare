@@ -2,6 +2,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import Image from "next/image";
+import { ThumbsUp, ThumbsDown } from "lucide-react";
 
 interface PostCardProps {
     courseId: Id<"courses">;
@@ -25,6 +26,10 @@ export default function PostCard({ courseId }: PostCardProps) {
             </div>
         );
     }
+    
+    function handleLike(postId: Id<"posts">) {
+    }
+    
 
     return (
         <div className="flex flex-col gap-4 w-full">
@@ -62,6 +67,20 @@ export default function PostCard({ courseId }: PostCardProps) {
                             </a>
                         </div>
                     )}
+                    <div className="flex items-center gap-2">
+                        <button className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors">
+                            <ThumbsUp className="w-4 h-4" color="black" />
+                        </button>
+                        <span className="text-sm text-gray-500">
+                            233
+                        </span>
+                        <button className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors">
+                            <ThumbsDown className="w-4 h-4" color="black" />
+                        </button>
+                        <span className="text-sm text-gray-500">
+                            233
+                        </span>
+                    </div>
                 </div>
             ))}
         </div>
