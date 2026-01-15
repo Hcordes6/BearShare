@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useQuery, Authenticated, Unauthenticated, AuthLoading } from "convex/react";
+import { useQuery, Authenticated, Unauthenticated, AuthLoading, useMutation, useConvexAuth } from "convex/react";
 import { SignInButton } from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
 import Header from "../components/header";
+import { joinCourse, leaveCourse } from "@/convex/memberships";
+import { Id } from "@/convex/_generated/dataModel";
 
 // Helper function to determine category and color based on course tag/name
 const getCategoryAndColor = (tag: string, name: string): { category: string; color: string } => {
@@ -106,6 +108,18 @@ export default function MyClasses() {
 function MyClassesContent() {
   const myCourses = useQuery(api.memberships.getMyCourses);
 
+  const { isAuthenticated } = useConvexAuth();
+  const courses = useQuery(api.courses.getAllCourses);
+  const joinCourse = useMutation(api.memberships.joinCourse);
+  const leaveCourse = useMutation(api.memberships.leaveCourse);
+
+  // Get membership status for all courses (only if authenticated)
+  const courseIds = courses ? courses.map((c) => c._id) : [];
+  const membershipStatus = useQuery(
+    api.memberships.getMembershipStatus,
+    isAuthenticated && courseIds.length > 0 ? { courseIds } : "skip"
+  );
+
   if (myCourses === undefined) {
     return (
       <div className="text-center text-gray-500 py-8">
@@ -129,6 +143,26 @@ function MyClassesContent() {
       </div>
     );
   }
+
+  const handleJoin = async (classId: Id<"courses">) => {
+    if (!isAuthenticated) {
+      alert("Please sign in to join classes");
+      return;
+    }
+
+    const isJoined = membershipStatus?.[classId] || false;
+
+    try {
+      if (isJoined) {
+        await leaveCourse({ courseId: classId });
+      } else {
+        await joinCourse({ courseId: classId });
+      }
+    } catch (error) {
+      console.error("Error joining/leaving course:", error);
+      alert(error instanceof Error ? error.message : "Failed to join/leave course");
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -160,23 +194,31 @@ function MyClassesContent() {
 
             {/* Member Count and View Button */}
             <div className="flex flex-col gap-3 pt-4 border-t border-gray-200">
-              <div className="flex items-center gap-2">
-                <svg
-                  className="w-4 h-4 text-gray-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <svg
+                    className="w-4 h-4 text-gray-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                  <span className="text-sm font-medium text-gray-700">
+                    {course.memberCount} {course.memberCount === 1 ? "member" : "members"}
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleJoin(course._id)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors ${membershipStatus?.[course._id] ? "bg-red-400 hover:bg-red-700" : `${colors.button}`}`}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
-                <span className="text-sm font-medium text-gray-700">
-                  {course.memberCount} {course.memberCount === 1 ? "member" : "members"}
-                </span>
+                  {membershipStatus?.[course._id] ? "Leave" : "Join"}
+                </button>
               </div>
               <Link
                 href={`/courses/${course._id}`}
@@ -191,4 +233,4 @@ function MyClassesContent() {
     </div>
   )
 }
-       
+

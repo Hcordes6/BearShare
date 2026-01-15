@@ -189,11 +189,11 @@ export default function AllClasses() {
                         onClick={() => handleJoin(classItem.id)}
                         className={`px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors ${
                           isJoined
-                            ? "bg-gray-600 hover:bg-gray-700"
+                            ? "bg-red-400 hover:bg-red-700"
                             : `${colors.button}`
                         }`}
                       >
-                        {isJoined ? "Joined" : "Join"}
+                        {isJoined ? "Leave" : "Join"}
                       </button>
                     </div>
                     <Link
