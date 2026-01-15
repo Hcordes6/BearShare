@@ -1,6 +1,6 @@
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { useQuery } from "convex/react";
+import { useConvexAuth, useQuery } from "convex/react";
 import Image from "next/image";
 import { ThumbsUp, ThumbsDown } from "lucide-react";
 
@@ -10,6 +10,13 @@ interface PostCardProps {
 
 export default function PostCard({ courseId }: PostCardProps) {
     const posts = useQuery(api.posts.getPosts, { courseId });
+    const { isAuthenticated } = useConvexAuth();
+
+    const membershipStatus = useQuery(
+        api.memberships.getMembershipStatus,
+        isAuthenticated && courseId ? { courseIds: [courseId] } : "skip"
+    );
+    const isMember = membershipStatus?.[courseId];
 
     if (posts === undefined) {
         return (
@@ -26,15 +33,30 @@ export default function PostCard({ courseId }: PostCardProps) {
             </div>
         );
     }
-    
-    function handleLike(postId: Id<"posts">) {
-    }
-    
 
+    function handleLike(postId: Id<"posts">) {
+        if (!isAuthenticated) {
+            alert("Please sign in to like posts");
+            return;
+        }
+        if (!isMember) {
+            alert("You must be a member of the course to like posts");
+            return;
+        }
+
+        
+    }
+
+    function handleDislike(postId: Id<"posts">) {
+        if (!isAuthenticated) {
+            alert("Please sign in to dislike posts");
+            return;
+        }
+    }
     return (
         <div className="flex flex-col gap-4 w-full">
             {posts.map(post => (
-                <div 
+                <div
                     key={post._id}
                     className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow"
                 >
@@ -57,10 +79,10 @@ export default function PostCard({ courseId }: PostCardProps) {
                                 rel="noopener noreferrer"
                                 className="inline-block"
                             >
-                                <Image 
-                                    src={post.fileUrl} 
-                                    alt={post.title} 
-                                    width={400} 
+                                <Image
+                                    src={post.fileUrl}
+                                    alt={post.title}
+                                    width={400}
                                     height={300}
                                     className="rounded-lg border border-gray-200 max-w-full h-auto"
                                 />

@@ -8,6 +8,8 @@ export const createTextPost = mutation({
         courseId: v.id("courses"),
         title: v.string(),
         content: v.string(),
+        likes: v.array(v.id("users")),
+        dislikes: v.array(v.id("users")),
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -33,6 +35,8 @@ export const createTextPost = mutation({
             courseId: args.courseId,
             title: args.title,
             content: args.content,
+            likes: args.likes,
+            dislikes: args.dislikes,
         });
         return post;
     },
@@ -70,6 +74,8 @@ export const createFilePost = mutation({
             courseId: args.courseId,
             file: args.storageId,
             title: args.title,
+            likes: [],
+            dislikes: [],
         });
     },
 });
@@ -85,6 +91,8 @@ export const getPosts = query({
             content: v.optional(v.string()),
             file: v.optional(v.id("_storage")),
             fileUrl: v.union(v.string(), v.null()),
+            likes: v.array(v.id("users")),
+            dislikes: v.array(v.id("users")),
         })
     ),
     handler: async (ctx, args) => {
@@ -99,7 +107,27 @@ export const getPosts = query({
             posts.map(async (post) => ({
                 ...post,
                 fileUrl: post.file ? await ctx.storage.getUrl(post.file) : null,
+                likes: post.likes,
+                dislikes: post.dislikes,
             }))
         );
+    },
+});
+
+export const likePost = mutation({
+    args: { postId: v.id("posts") },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new Error("Must be logged in to like a post");
+        }
+        const userId = identity.subject;
+        const post = await ctx.db.get(args.postId);
+        if (post?.likes.includes(userId)) {
+            await ctx.db.patch(args.postId, { likes: post?.likes.filter((id: Id<"users">) => id !== userId) || [] });
+        } else {
+            await ctx.db.patch(args.postId, { likes: [...post?.likes || [], userId as Id<"users">] });
+        }
+        return post;
     },
 });
