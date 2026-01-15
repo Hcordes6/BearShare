@@ -19,6 +19,8 @@ export default defineSchema({
     title: v.string(),
     content: v.optional(v.string()),
     file: v.optional(v.id("_storage")),
+    likes: v.optional(v.array(v.string())), // Clerk user IDs
+    dislikes: v.optional(v.array(v.string())), // Clerk user IDs
   }).index("by_course", ["courseId"]), // index to query posts by courseId -- more efficient lookup
   userCourseMemberships: defineTable({
     userId: v.string(), // Clerk user ID
