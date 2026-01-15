@@ -1,15 +1,14 @@
 import { v } from "convex/values";
 import { query, mutation, action } from "./_generated/server";
 import { api } from "./_generated/api";
-import { Id } from "./_generated/dataModel";
 
 export const createTextPost = mutation({
     args: {
         courseId: v.id("courses"),
         title: v.string(),
         content: v.string(),
-        likes: v.array(v.id("users")),
-        dislikes: v.array(v.id("users")),
+        likes: v.array(v.string()),
+        dislikes: v.array(v.string()),
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -35,8 +34,8 @@ export const createTextPost = mutation({
             courseId: args.courseId,
             title: args.title,
             content: args.content,
-            likes: args.likes,
-            dislikes: args.dislikes,
+            likes: [],
+            dislikes: [],
         });
         return post;
     },
@@ -91,8 +90,8 @@ export const getPosts = query({
             content: v.optional(v.string()),
             file: v.optional(v.id("_storage")),
             fileUrl: v.union(v.string(), v.null()),
-            likes: v.array(v.id("users")),
-            dislikes: v.array(v.id("users")),
+            likes: v.array(v.string()),
+            dislikes: v.array(v.string()),
         })
     ),
     handler: async (ctx, args) => {
@@ -107,8 +106,8 @@ export const getPosts = query({
             posts.map(async (post) => ({
                 ...post,
                 fileUrl: post.file ? await ctx.storage.getUrl(post.file) : null,
-                likes: post.likes,
-                dislikes: post.dislikes,
+                likes: post.likes || [],
+                dislikes: post.dislikes || [],
             }))
         );
     },
@@ -123,11 +122,82 @@ export const likePost = mutation({
         }
         const userId = identity.subject;
         const post = await ctx.db.get(args.postId);
-        if (post?.likes.includes(userId)) {
-            await ctx.db.patch(args.postId, { likes: post?.likes.filter((id: Id<"users">) => id !== userId) || [] });
-        } else {
-            await ctx.db.patch(args.postId, { likes: [...post?.likes || [], userId as Id<"users">] });
+        if (!post) {
+            throw new Error("Post not found");
         }
-        return post;
+        
+        const currentLikes = post.likes || [];
+        const currentDislikes = post.dislikes || [];
+        
+        // If user already liked, remove the like (toggle off)
+        if (currentLikes.includes(userId)) {
+            await ctx.db.patch(args.postId, { 
+                likes: currentLikes.filter((id: string) => id !== userId)
+            });
+        } else {
+            // Add like and remove from dislikes if present (mutual exclusivity)
+            await ctx.db.patch(args.postId, { 
+                likes: [...currentLikes, userId],
+                dislikes: currentDislikes.filter((id: string) => id !== userId)
+            });
+        }
+    },
+});
+
+export const dislikePost = mutation({
+    args: { postId: v.id("posts") },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new Error("Must be logged in to dislike a post");
+        }
+        const userId = identity.subject;
+        const post = await ctx.db.get(args.postId);
+        if (!post) {
+            throw new Error("Post not found");
+        }
+        
+        const currentLikes = post.likes || [];
+        const currentDislikes = post.dislikes || [];
+        
+        // If user already disliked, remove the dislike (toggle off)
+        if (currentDislikes.includes(userId)) {
+            await ctx.db.patch(args.postId, { 
+                dislikes: currentDislikes.filter((id: string) => id !== userId)
+            });
+        } else {
+            // Add dislike and remove from likes if present (mutual exclusivity)
+            await ctx.db.patch(args.postId, { 
+                dislikes: [...currentDislikes, userId],
+                likes: currentLikes.filter((id: string) => id !== userId)
+            });
+        }
+    },
+});
+
+// Migration function to add likes/dislikes fields to existing posts
+// Run this once to fix existing posts in the database
+export const migratePostsAddLikesDislikes = mutation({
+    handler: async (ctx) => {
+        const posts = await ctx.db.query("posts").collect();
+        let updated = 0;
+        
+        for (const post of posts) {
+            const updates: { likes?: string[]; dislikes?: string[] } = {};
+            
+            if (post.likes === undefined) {
+                updates.likes = [];
+            }
+            if (post.dislikes === undefined) {
+                updates.dislikes = [];
+            }
+            
+            if (Object.keys(updates).length > 0) {
+                await ctx.db.patch(post._id, updates);
+                updated++;
+            }
+        }
+        
+        return { updated, total: posts.length };
     },
 });
