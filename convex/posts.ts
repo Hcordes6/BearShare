@@ -229,3 +229,18 @@ export const migratePostsAddLikesDislikes = mutation({
         return { updated, total: posts.length };
     },
 });
+
+export const getAuthorId = query({
+    args: { courseId: v.id("courses") },
+    returns: v.array(v.object({ postId: v.id("posts"), authorId: v.string() })),
+    handler: async (ctx, args) => {
+        const posts = await ctx.db
+            .query("posts")
+            .withIndex("by_course", (q) => q.eq("courseId", args.courseId))
+            .collect();
+        return posts.map((post) => ({
+            postId: post._id,
+            authorId: post.authorId,
+        }));
+    }
+})

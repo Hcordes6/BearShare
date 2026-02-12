@@ -82,7 +82,7 @@ export default function PostCard({ courseId }: PostCardProps) {
                     key={post._id}
                     className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow"
                 >
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-start content-center justify-between mb-3">
                         <h2 className="text-xl font-bold text-foreground">{post.title}</h2>
                         <div className="flex content-center items-center gap-2">
                             <span className="text-xs text-gray-500">
