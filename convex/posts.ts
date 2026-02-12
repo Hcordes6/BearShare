@@ -176,6 +176,32 @@ export const dislikePost = mutation({
     },
 });
 
+export const deletePost = mutation({
+    args: { postId: v.id("posts") },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new Error("Must be logged in to delete a post");
+        }
+
+        const post = await ctx.db.get(args.postId);
+        if (!post) {
+            throw new Error("Post not found");
+        }
+
+        if (post.authorId !== identity.subject) {
+            throw new Error("You can only delete your own posts");
+        }
+
+        if (post.file) {
+            await ctx.storage.delete(post.file);
+        }
+
+        await ctx.db.delete(args.postId);
+        return { deleted: true };
+    },
+});
+
 // Migration function to add likes/dislikes fields to existing posts
 // Run this once to fix existing posts in the database
 export const migratePostsAddLikesDislikes = mutation({

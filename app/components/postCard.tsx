@@ -15,6 +15,7 @@ export default function PostCard({ courseId }: PostCardProps) {
     const { userId } = useAuth();
     const likePost = useMutation(api.posts.likePost);
     const dislikePost = useMutation(api.posts.dislikePost);
+    const deletePost = useMutation(api.posts.deletePost);
 
     const membershipStatus = useQuery(
         api.memberships.getMembershipStatus,
@@ -63,9 +64,17 @@ export default function PostCard({ courseId }: PostCardProps) {
     }
 
     async function handleDelete(postId: Id<"posts">) {
-        alert("Delete functionality not implemented yet");
-    }
+        if (!isAuthenticated) {
+            alert("Please sign in to delete posts");
+            return;
+        }
+        if (!isMember) {
+            alert("You must be a member of the course to delete posts");
+            return;
+        }
 
+        await deletePost({ postId });
+    }
     return (
         <div className="flex flex-col gap-4 w-full">
             {posts.map(post => (
@@ -76,18 +85,20 @@ export default function PostCard({ courseId }: PostCardProps) {
                     <div className="flex items-start content-center justify-between mb-3">
                         <h2 className="text-xl font-bold text-foreground">{post.title}</h2>
                         <div className="flex content-center items-center gap-2">
-                            <span className="text-xs text-gray-500 italic">
+                            <span className="text-xs text-gray-500">
                                 {new Date(post._creationTime).toLocaleDateString()}
                             </span>
                             {userId != null && userId === post.authorId && (
-                                <button className="ml-2 text-gray-500 hover:text-red-500"
+                                <button
+                                    className="p-1 rounded-full hover:bg-gray-100 transition-colors"
                                     onClick={() => handleDelete(post._id)}
                                     aria-label="Delete post"
                                 >
-                                    <Trash className="w-4 h-4" />
+                                    <Trash className="w-4 h-4 text-gray-500 hover:text-red-500" />
                                 </button>
                             )}
                         </div>
+
                     </div>
                     {post.content && (
                         <p className="text-gray-700 mb-4 whitespace-pre-wrap">
@@ -116,8 +127,8 @@ export default function PostCard({ courseId }: PostCardProps) {
                         <button
                             onClick={() => handleLike(post._id)}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${userId && post.likes.includes(userId)
-                                ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
-                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                    ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                                 }`}
                         >
                             <ThumbsUp className="w-4 h-4" />
@@ -128,8 +139,8 @@ export default function PostCard({ courseId }: PostCardProps) {
                         <button
                             onClick={() => handleDislike(post._id)}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${userId && post.dislikes.includes(userId)
-                                ? "bg-red-100 text-red-700 hover:bg-red-200"
-                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                    ? "bg-red-100 text-red-700 hover:bg-red-200"
+                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                                 }`}
                         >
                             <ThumbsDown className="w-4 h-4" />
