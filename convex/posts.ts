@@ -1,14 +1,11 @@
 import { v } from "convex/values";
-import { query, mutation, action } from "./_generated/server";
-import { api } from "./_generated/api";
+import { query, mutation } from "./_generated/server";
 
 export const createTextPost = mutation({
     args: {
         courseId: v.id("courses"),
         title: v.string(),
         content: v.string(),
-        likes: v.array(v.string()),
-        dislikes: v.array(v.string()),
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -32,6 +29,7 @@ export const createTextPost = mutation({
 
         const post = await ctx.db.insert("posts", {
             courseId: args.courseId,
+            authorId: userId,
             title: args.title,
             content: args.content,
             likes: [],
@@ -42,6 +40,7 @@ export const createTextPost = mutation({
 });
 
 export const generateUploadUrl = mutation({
+    args: {},
     handler: async (ctx) => {
         return await ctx.storage.generateUploadUrl();
     },
@@ -71,6 +70,7 @@ export const createFilePost = mutation({
 
         await ctx.db.insert("posts", {
             courseId: args.courseId,
+            authorId: userId,
             file: args.storageId,
             title: args.title,
             likes: [],
@@ -86,6 +86,7 @@ export const getPosts = query({
             _id: v.id("posts"),
             _creationTime: v.number(),
             courseId: v.id("courses"),
+            authorId: v.string(),
             title: v.string(),
             content: v.optional(v.string()),
             file: v.optional(v.id("_storage")),
@@ -178,6 +179,7 @@ export const dislikePost = mutation({
 // Migration function to add likes/dislikes fields to existing posts
 // Run this once to fix existing posts in the database
 export const migratePostsAddLikesDislikes = mutation({
+    args: {},
     handler: async (ctx) => {
         const posts = await ctx.db.query("posts").collect();
         let updated = 0;
@@ -201,3 +203,18 @@ export const migratePostsAddLikesDislikes = mutation({
         return { updated, total: posts.length };
     },
 });
+
+export const getAuthorId = query({
+    args: { courseId: v.id("courses") },
+    returns: v.array(v.object({ postId: v.id("posts"), authorId: v.string() })),
+    handler: async (ctx, args) => {
+        const posts = await ctx.db
+            .query("posts")
+            .withIndex("by_course", (q) => q.eq("courseId", args.courseId))
+            .collect();
+        return posts.map((post) => ({
+            postId: post._id,
+            authorId: post.authorId,
+        }));
+    }
+})

@@ -3,7 +3,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { useConvexAuth, useQuery, useMutation } from "convex/react";
 import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
-import { ThumbsUp, ThumbsDown } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Trash } from "lucide-react";
 
 interface PostCardProps {
     courseId: Id<"courses">;
@@ -61,6 +61,11 @@ export default function PostCard({ courseId }: PostCardProps) {
         }
         await dislikePost({ postId });
     }
+
+    async function handleDelete(postId: Id<"posts">) {
+        alert("Delete functionality not implemented yet");
+    }
+
     return (
         <div className="flex flex-col gap-4 w-full">
             {posts.map(post => (
@@ -68,11 +73,21 @@ export default function PostCard({ courseId }: PostCardProps) {
                     key={post._id}
                     className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow"
                 >
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-start content-center justify-between mb-3">
                         <h2 className="text-xl font-bold text-foreground">{post.title}</h2>
-                        <span className="text-xs text-gray-500">
-                            {new Date(post._creationTime).toLocaleDateString()}
-                        </span>
+                        <div className="flex content-center items-center gap-2">
+                            <span className="text-xs text-gray-500 italic">
+                                {new Date(post._creationTime).toLocaleDateString()}
+                            </span>
+                            {userId != null && userId === post.authorId && (
+                                <button className="ml-2 text-gray-500 hover:text-red-500"
+                                    onClick={() => handleDelete(post._id)}
+                                    aria-label="Delete post"
+                                >
+                                    <Trash className="w-4 h-4" />
+                                </button>
+                            )}
+                        </div>
                     </div>
                     {post.content && (
                         <p className="text-gray-700 mb-4 whitespace-pre-wrap">
@@ -98,26 +113,24 @@ export default function PostCard({ courseId }: PostCardProps) {
                         </div>
                     )}
                     <div className="flex items-center gap-2 mt-4">
-                        <button 
+                        <button
                             onClick={() => handleLike(post._id)}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                                userId && post.likes.includes(userId)
-                                    ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
-                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                            }`}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${userId && post.likes.includes(userId)
+                                ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                }`}
                         >
                             <ThumbsUp className="w-4 h-4" />
                         </button>
                         <span className="text-sm text-gray-500">
                             {post.likes.length}
                         </span>
-                        <button 
+                        <button
                             onClick={() => handleDislike(post._id)}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                                userId && post.dislikes.includes(userId)
-                                    ? "bg-red-100 text-red-700 hover:bg-red-200"
-                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                            }`}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${userId && post.dislikes.includes(userId)
+                                ? "bg-red-100 text-red-700 hover:bg-red-200"
+                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                }`}
                         >
                             <ThumbsDown className="w-4 h-4" />
                         </button>
