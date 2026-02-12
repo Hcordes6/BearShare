@@ -16,6 +16,7 @@ export default defineSchema({
   }),
   posts: defineTable({
     courseId: v.id("courses"),
+    authorId: v.string(), // Clerk user ID
     title: v.string(),
     content: v.optional(v.string()),
     file: v.optional(v.id("_storage")),

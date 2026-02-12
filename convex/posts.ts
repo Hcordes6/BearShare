@@ -1,14 +1,11 @@
 import { v } from "convex/values";
-import { query, mutation, action } from "./_generated/server";
-import { api } from "./_generated/api";
+import { query, mutation } from "./_generated/server";
 
 export const createTextPost = mutation({
     args: {
         courseId: v.id("courses"),
         title: v.string(),
         content: v.string(),
-        likes: v.array(v.string()),
-        dislikes: v.array(v.string()),
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -32,6 +29,7 @@ export const createTextPost = mutation({
 
         const post = await ctx.db.insert("posts", {
             courseId: args.courseId,
+            authorId: userId,
             title: args.title,
             content: args.content,
             likes: [],
@@ -42,6 +40,7 @@ export const createTextPost = mutation({
 });
 
 export const generateUploadUrl = mutation({
+    args: {},
     handler: async (ctx) => {
         return await ctx.storage.generateUploadUrl();
     },
@@ -71,6 +70,7 @@ export const createFilePost = mutation({
 
         await ctx.db.insert("posts", {
             courseId: args.courseId,
+            authorId: userId,
             file: args.storageId,
             title: args.title,
             likes: [],
@@ -86,6 +86,7 @@ export const getPosts = query({
             _id: v.id("posts"),
             _creationTime: v.number(),
             courseId: v.id("courses"),
+            authorId: v.string(),
             title: v.string(),
             content: v.optional(v.string()),
             file: v.optional(v.id("_storage")),
@@ -175,9 +176,36 @@ export const dislikePost = mutation({
     },
 });
 
+export const deletePost = mutation({
+    args: { postId: v.id("posts") },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) {
+            throw new Error("Must be logged in to delete a post");
+        }
+
+        const post = await ctx.db.get(args.postId);
+        if (!post) {
+            throw new Error("Post not found");
+        }
+
+        if (post.authorId !== identity.subject) {
+            throw new Error("You can only delete your own posts");
+        }
+
+        if (post.file) {
+            await ctx.storage.delete(post.file);
+        }
+
+        await ctx.db.delete(args.postId);
+        return { deleted: true };
+    },
+});
+
 // Migration function to add likes/dislikes fields to existing posts
 // Run this once to fix existing posts in the database
 export const migratePostsAddLikesDislikes = mutation({
+    args: {},
     handler: async (ctx) => {
         const posts = await ctx.db.query("posts").collect();
         let updated = 0;
