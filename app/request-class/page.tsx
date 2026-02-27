@@ -11,7 +11,6 @@ export default function RequestClass() {
 
     return (
         <div className="flex flex-col min-h-screen bg-background pt-18">
-            <Header />
             <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
                 <div className="max-w-2xl mx-auto">
                     <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
