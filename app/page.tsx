@@ -5,8 +5,7 @@ import Header from "./components/header";
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen bg-background pt-18">
-      <Header />
+    <div>
       {/* Hero Section */}
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
         <div className="max-w-4xl mx-auto text-center">
@@ -37,10 +36,6 @@ export default function Home() {
       {/* Features Section */}
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground text-center mb-12">
-            How BearShare Works
-          </h2>
-          
           <div className="grid md:grid-cols-3 gap-8">
             {/* Feature 1 */}
             <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
@@ -84,73 +79,6 @@ export default function Home() {
               </p>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="bg-gray-50 py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground text-center mb-12">
-              Getting Started
-            </h2>
-            
-            <div className="space-y-8">
-              <div className="flex gap-6">
-                <div className="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-lg">
-                  1
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">Browse Available Classes</h3>
-                  <p className="text-gray-600">
-                    Explore all available classes and find ones that match your interests or academic needs.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-6">
-                <div className="flex-shrink-0 w-10 h-10 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-lg">
-                  2
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">Join Your Classes</h3>
-                  <p className="text-gray-600">
-                    Enroll in classes to access shared resources and connect with other students and educators.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-6">
-                <div className="flex-shrink-0 w-10 h-10 bg-amber-600 text-white rounded-full flex items-center justify-center font-bold text-lg">
-                  3
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">Share & Learn</h3>
-                  <p className="text-gray-600">
-                    Create posts with text or files, share study materials, and collaborate with your class community.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="max-w-3xl mx-auto text-center bg-gradient-to-r from-blue-600 via-purple-600 to-amber-600 rounded-2xl p-12 text-white">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Ready to Start Learning?
-          </h2>
-          <p className="text-xl mb-8 opacity-90">
-            Join BearShare today and connect with a community of learners and educators.
-          </p>
-          <Link
-            href="/all-classes"
-            className="inline-block px-8 py-3 bg-white text-blue-600 rounded-lg font-medium hover:bg-gray-100 transition-colors"
-          >
-            Explore Classes
-          </Link>
         </div>
       </section>
     </div>
