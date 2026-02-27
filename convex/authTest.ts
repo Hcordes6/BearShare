@@ -5,6 +5,7 @@ import { v } from "convex/values";
  * Test function to check if authentication is working
  */
 export const testAuth = query({
+  args: {},
     returns: v.object({
         hasIdentity: v.boolean(),
         identity: v.union(

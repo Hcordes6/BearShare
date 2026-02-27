@@ -26,8 +26,14 @@ export default defineSchema({
   userCourseMemberships: defineTable({
     userId: v.string(), // Clerk user ID
     courseId: v.id("courses"),
-  })
-    .index("by_user", ["userId"])
+  }).index("by_user", ["userId"])
     .index("by_course", ["courseId"])
     .index("by_user_and_course", ["userId", "courseId"]), // composite index for membership lookup
+  reviews: defineTable({
+    courseId: v.id("courses"),
+    authorId: v.string(), // Clerk user ID
+    rating: v.number(), // 1-5
+    comment: v.optional(v.string()),
+  }).index("by_course", ["courseId"]), // index to query reviews by courseId
+
 });

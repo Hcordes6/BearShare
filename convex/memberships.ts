@@ -113,6 +113,7 @@ export const isMember = query({
  * Get all courses the current user has joined.
  */
 export const getMyCourses = query({
+  args: {},
     returns: v.array(
         v.object({
             _id: v.id("courses"),

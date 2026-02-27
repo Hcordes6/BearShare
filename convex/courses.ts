@@ -20,6 +20,7 @@ export const getCourse = query({
 });
 
 export const getAllCourses = query({
+  args: {},
     returns: v.array(
         v.object({
             _id: v.id("courses"),

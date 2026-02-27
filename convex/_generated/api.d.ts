@@ -12,6 +12,7 @@ import type * as authTest from "../authTest.js";
 import type * as courses from "../courses.js";
 import type * as memberships from "../memberships.js";
 import type * as posts from "../posts.js";
+import type * as reviews from "../reviews.js";
 
 import type {
   ApiFromModules,
@@ -24,6 +25,7 @@ declare const fullApi: ApiFromModules<{
   courses: typeof courses;
   memberships: typeof memberships;
   posts: typeof posts;
+  reviews: typeof reviews;
 }>;
 
 /**
