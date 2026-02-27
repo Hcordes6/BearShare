@@ -4,14 +4,20 @@ import { useParams } from "next/navigation";
 import { useQuery, useConvexAuth } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import Header from "../../components/header";
+import { useState } from "react";
 import AddPost from "../../components/addPost";
 import PostCard from "../../components/postCard";
+
+type CourseTab = "posts" | "reviews";
+type PostSort = "recent" | "top";
 
 export default function CoursePage() {
     const params = useParams();
     const courseId = params.courseId as Id<"courses">;
     const { isAuthenticated } = useConvexAuth();
+
+    const [activeTab, setActiveTab] = useState<CourseTab>("posts");
+    const [postSort, setPostSort] = useState<PostSort>("recent");
 
     const course = useQuery(api.courses.getCourse, { courseId });
     const isMember = useQuery(
@@ -34,13 +40,12 @@ export default function CoursePage() {
     if (course === null) {
         return (
             <div className="flex flex-col min-h-screen bg-background pt-18">
-                <Header />
                 <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     <div className="max-w-4xl mx-auto">
                         <div className="text-center">
                             <h1 className="text-2xl font-bold text-foreground mb-4">Course Not Found</h1>
                             <p className="text-gray-600">
-                                The course you're looking for doesn't exist.
+                                The course you&apos;re looking for doesn&apos;t exist.
                             </p>
                         </div>
                     </div>
@@ -49,39 +54,38 @@ export default function CoursePage() {
         );
     }
 
+    const canPost = isAuthenticated && !!isMember;
+    const showJoinHint = isAuthenticated && isMember === false;
+    const sidebarItems = [
+        { id: "posts" as const, label: "Posts" },
+        { id: "reviews" as const, label: "Reviews" },
+    ];
+
     return (
         <div className="flex flex-col min-h-screen bg-background pt-22">
-            <Header />
             <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="max-w-4xl mx-auto">
+                <div className="max-w-5xl mx-auto">
                     {/* Course Header */}
                     <div className="mb-8">
                         <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
                             {course.name}
                         </h1>
-                        
-                        {/* Tag and AddPost inline */}
+
                         <div className="flex flex-row items-center justify-between gap-4 mb-4">
-                            <p className="text-gray-600">
-                                {course.tag}
-                            </p>
-                            
-                            {/* Add Post Component - inline with tag, only show if user is a member */}
-                            {isAuthenticated && isMember && (
+                            <p className="text-gray-600">{course.tag}</p>
+
+                            {canPost && (
                                 <div className="shrink-0">
                                     <AddPost courseId={courseId} />
                                 </div>
                             )}
-                            {isAuthenticated && !isMember && (
+                            {showJoinHint && (
                                 <div className="shrink-0">
-                                    <p className="text-sm text-gray-500 italic">
-                                        Join this course to post
-                                    </p>
+                                    <p className="text-sm text-gray-500 italic">Join this course to post</p>
                                 </div>
                             )}
                         </div>
 
-                        {/* Member Count on separate line */}
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                             <svg
                                 className="w-4 h-4"
@@ -96,14 +100,85 @@ export default function CoursePage() {
                                     d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                                 />
                             </svg>
-                            <span>{course.memberCount} {course.memberCount === 1 ? "member" : "members"}</span>
+                            <span>
+                                {course.memberCount} {course.memberCount === 1 ? "member" : "members"}
+                            </span>
                         </div>
                     </div>
 
-                    {/* Posts */}
-                    <div>
-                        <h2 className="text-2xl font-bold text-foreground mb-4">Posts</h2>
-                        <PostCard courseId={courseId} />
+                    {/* Sidebar + Tab Content */}
+                    <div className="flex flex-col md:flex-row gap-6">
+                        <aside className="md:w-64 w-full">
+                            <div className="bg-white rounded-lg border border-gray-200 p-4">
+                                <div className="flex md:flex-col gap-2">
+                                    {sidebarItems.map((item) => (
+                                        <button
+                                            key={item.id}
+                                            type="button"
+                                            onClick={() => setActiveTab(item.id)}
+                                            className={
+                                                "px-3 py-2 rounded-md text-sm font-medium text-left transition-colors " +
+                                                (activeTab === item.id
+                                                    ? "bg-gray-100 text-foreground"
+                                                    : "text-gray-700 hover:bg-gray-50")
+                                            }
+                                        >
+                                            {item.label}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {activeTab === "posts" && (
+                                    <div className="mt-4 pt-4 border-t border-gray-200">
+                                        <div className="text-xs font-semibold text-gray-500 mb-2">Sort posts</div>
+                                        <div className="flex md:flex-col gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setPostSort("recent")}
+                                                className={
+                                                    "px-3 py-2 rounded-md text-sm text-left transition-colors " +
+                                                    (postSort === "recent"
+                                                        ? "bg-gray-100 text-foreground"
+                                                        : "text-gray-700 hover:bg-gray-50")
+                                                }
+                                            >
+                                                Recent
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setPostSort("top")}
+                                                className={
+                                                    "px-3 py-2 rounded-md text-sm text-left transition-colors " +
+                                                    (postSort === "top"
+                                                        ? "bg-gray-100 text-foreground"
+                                                        : "text-gray-700 hover:bg-gray-50")
+                                                }
+                                            >
+                                                Most upvotes
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </aside>
+
+                        <section className="flex-1 min-w-0">
+                            {activeTab === "posts" && (
+                                <div>
+                                    <h2 className="text-2xl font-bold text-foreground mb-4">Posts</h2>
+                                    <PostCard courseId={courseId} sort={postSort} />
+                                </div>
+                            )}
+
+                            {activeTab === "reviews" && (
+                                <div>
+                                    <h2 className="text-2xl font-bold text-foreground mb-4">Reviews</h2>
+                                    <div className="bg-white rounded-lg border border-gray-200 p-6 text-gray-600">
+                                        No reviews yet.
+                                    </div>
+                                </div>
+                            )}
+                        </section>
                     </div>
                 </div>
             </main>

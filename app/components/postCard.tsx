@@ -4,18 +4,38 @@ import { useConvexAuth, useQuery, useMutation } from "convex/react";
 import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import { ThumbsUp, ThumbsDown, Trash } from "lucide-react";
+import { useMemo } from "react";
 
 interface PostCardProps {
     courseId: Id<"courses">;
+    sort?: "recent" | "top";
 }
 
-export default function PostCard({ courseId }: PostCardProps) {
+export default function PostCard({ courseId, sort = "recent" }: PostCardProps) {
     const posts = useQuery(api.posts.getPosts, { courseId });
     const { isAuthenticated } = useConvexAuth();
     const { userId } = useAuth();
     const likePost = useMutation(api.posts.likePost);
     const dislikePost = useMutation(api.posts.dislikePost);
     const deletePost = useMutation(api.posts.deletePost);
+
+    const sortedPosts = useMemo(() => {
+        if (!posts) return undefined;
+
+        const copy = [...posts];
+
+        if (sort === "top") {
+            copy.sort((a, b) => {
+                const likeDiff = (b.likes?.length ?? 0) - (a.likes?.length ?? 0);
+                if (likeDiff !== 0) return likeDiff;
+                return b._creationTime - a._creationTime;
+            });
+            return copy;
+        }
+
+        copy.sort((a, b) => b._creationTime - a._creationTime);
+        return copy;
+    }, [posts, sort]);
 
     const membershipStatus = useQuery(
         api.memberships.getMembershipStatus,
@@ -77,7 +97,7 @@ export default function PostCard({ courseId }: PostCardProps) {
     }
     return (
         <div className="flex flex-col gap-4 w-full">
-            {posts.map(post => (
+            {sortedPosts!.map(post => (
                 <div
                     key={post._id}
                     className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow"
