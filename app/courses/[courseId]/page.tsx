@@ -20,6 +20,7 @@ export default function CoursePage() {
     const [postSort, setPostSort] = useState<PostSort>("recent");
 
     const course = useQuery(api.courses.getCourse, { courseId });
+    const reviews = useQuery(api.reviews.getReviews, { courseId });
     const isMember = useQuery(
         api.memberships.isMember,
         isAuthenticated ? { courseId } : "skip"
@@ -174,7 +175,38 @@ export default function CoursePage() {
                                 <div>
                                     <h2 className="text-2xl font-bold text-foreground mb-4">Reviews</h2>
                                     <div className="bg-white rounded-lg border border-gray-200 p-6 text-gray-600">
-                                        No reviews yet.
+                                        {reviews === undefined ? (
+                                            <div className="text-center">Loading reviews...</div>
+                                        ) : reviews.length === 0 ? (
+                                            <div className="text-center">No reviews yet.</div>
+                                        ) : (
+                                            <ul className="space-y-4">
+                                                {reviews.map((review) => (
+                                                    <li key={review._id} className="border-b border-gray-200 pb-4">
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <span className="text-sm text-gray-500">
+                                                                {new Date(review._creationTime).toLocaleDateString()}
+                                                            </span>
+                                                        </div>  
+                                                        <div className="flex items-center gap-1 mb-2">
+                                                            {[...Array(5)].map((_, i) => (
+                                                                <svg
+                                                                    key={i}
+                                                                    className={`w-4 h-4 ${
+                                                                        i < review.rating ? "text-yellow-400" : "text-gray-300" 
+                                                                    }`}
+                                                                    fill="currentColor"
+                                                                    viewBox="0 0 20 20"
+                                                                >
+                                                                    <path d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.955L10 0l2.951 5.955 6.561.955-4.756 4.635 1.122 6.545z" />
+                                                                </svg>
+                                                            ))}
+                                                        </div>
+                                                        <p>{review.comment}</p>
+                                                     </li>
+                                                ))}
+                                            </ul>
+                                        )}
                                     </div>
                                 </div>
                             )}
